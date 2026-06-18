@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dr. Ibrahim · Command Center v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { inter: ['Inter','system-ui','sans-serif'] },
+      colors: {
+        ink: '#080C18',
+        apex: '#00C9A7',
+        qv: '#A855F7',
+        crit: '#EF4444',
+        high: '#F97316',
+        med: '#EAB308',
+        low: '#22C55E',
+        gold: '#D4AF37',
+      }
+    }
+  }
+}
+</script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(0,201,167,.07), transparent 60%),
+               radial-gradient(1000px 600px at -10% 20%, rgba(168,85,247,.06), transparent 55%),
+               #080C18;
+    font-family:'Inter',system-ui,sans-serif;color:#E2E8F0;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#1E293B;border-radius:3px}
+  .glass{
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.07);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border-radius:20px;
+  }
+  .live-dot{width:8px;height:8px;border-radius:50%;background:#22C55E;
+    box-shadow:0 0 8px #22C55E,0 0 16px rgba(34,197,94,.4);
+    animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .pri-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;display:inline-block}
+  .collapse-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .collapse-body.open{max-height:1600px}
+  .chev{transition:transform .3s ease}
+  .chev.open{transform:rotate(180deg)}
+  .council-card{transition:transform .25s ease,box-shadow .25s ease}
+  .council-card:hover{transform:translateY(-4px)}
+  .filtered-out{display:none!important}
+  .banner-slide{transition:opacity .4s ease,transform .4s ease,max-height .4s ease,margin .4s ease,padding .4s ease}
+  .banner-slide.dismissed{opacity:0;transform:translateY(-10px);max-height:0;margin:0;padding:0;overflow:hidden}
+</style>
+</head>
+<body class="font-inter">
+
+<!-- ───────── PIN LOCK OVERLAY ───────── -->
+<div id="pinOverlay" style="
+  position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(1200px 700px at 80% -10%,rgba(0,201,167,.08),transparent 60%),
+             radial-gradient(1000px 600px at -10% 20%,rgba(168,85,247,.07),transparent 55%),
+             #080C18;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;
+">
+  <div style="
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.09);
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    border-radius:24px;padding:48px 44px 44px;
+    text-align:center;width:min(92vw,360px);
+    box-shadow:0 0 80px rgba(0,201,167,.06),0 32px 80px rgba(0,0,0,.5);
+  ">
+    <!-- Lock icon -->
+    <div style="width:56px;height:56px;border-radius:50%;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00C9A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#64748B;margin-bottom:8px;">Command Center</div>
+    <div style="font-size:22px;font-weight:800;color:#F8FAFC;letter-spacing:-.3px;margin-bottom:4px;">Enter PIN</div>
+    <div style="font-size:13px;color:#475569;margin-bottom:28px;">Access restricted to authorized operators</div>
+    <!-- PIN dots -->
+    <div id="pinDots" style="display:flex;justify-content:center;gap:12px;margin-bottom:24px;">
+      <div class="pd" style="width:12px;height:12px;border-radius:50%;border:2px solid #334155;background:transparent;transition:all .2s"></div>
+      <div class="pd" style="width:12px;height:12px;border-radius:50%;border:2px solid #334155;background:transparent;transition:all .2s"></div>
+      <div class="pd" style="width:12px;height:12px;border-radius:50%;border:2px solid #334155;background:transparent;transition:all .2s"></div>
+      <div class="pd" style="width:12px;height:12px;border-radius:50%;border:2px solid #334155;background:transparent;transition:all .2s"></div>
+    </div>
+    <!-- Numpad -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
+      <button onclick="pinKey('1')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">1</button>
+      <button onclick="pinKey('2')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">2</button>
+      <button onclick="pinKey('3')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">3</button>
+      <button onclick="pinKey('4')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">4</button>
+      <button onclick="pinKey('5')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">5</button>
+      <button onclick="pinKey('6')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">6</button>
+      <button onclick="pinKey('7')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">7</button>
+      <button onclick="pinKey('8')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">8</button>
+      <button onclick="pinKey('9')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">9</button>
+      <button onclick="pinKey('del')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#64748B;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">⌫</button>
+      <button onclick="pinKey('0')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">0</button>
+      <div></div>
+    </div>
+    <div id="pinError" style="font-size:12px;color:#EF4444;margin-top:8px;height:16px;transition:opacity .3s;opacity:0;">Incorrect PIN. Try again.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var PIN='2580',buf='';
+  // Check session storage — skip overlay if already unlocked this session
+  if(sessionStorage.getItem('apex_unlocked')==='1'){
+    document.getElementById('pinOverlay').style.display='none';
+    return;
+  }
+  // Keyboard support
+  document.addEventListener('keydown',function(e){
+    if(!document.getElementById('pinOverlay')||document.getElementById('pinOverlay').style.display==='none') return;
+    if(e.key>='0'&&e.key<='9') pinKey(e.key);
+    else if(e.key==='Backspace') pinKey('del');
+  });
+  window.pinKey=function(k){
+    var err=document.getElementById('pinError');
+    err.style.opacity='0';
+    if(k==='del'){buf=buf.slice(0,-1);}
+    else if(buf.length<4){buf+=k;}
+    updateDots();
+    if(buf.length===4){
+      if(buf===PIN){
+        sessionStorage.setItem('apex_unlocked','1');
+        var overlay=document.getElementById('pinOverlay');
+        overlay.style.transition='opacity .4s ease';
+        overlay.style.opacity='0';
+        setTimeout(function(){overlay.style.display='none';},420);
+      } else {
+        err.style.opacity='1';
+        // Shake & reset
+        var card=document.getElementById('pinOverlay').querySelector('div');
+        card.style.animation='pinShake .4s ease';
+        setTimeout(function(){card.style.animation='';buf='';updateDots();},420);
+      }
+    }
+  };
+  function updateDots(){
+    var dots=document.querySelectorAll('#pinDots .pd');
+    dots.forEach(function(d,i){
+      if(i<buf.length){
+        d.style.background='#00C9A7';d.style.borderColor='#00C9A7';
+        d.style.boxShadow='0 0 8px rgba(0,201,167,.5)';
+      } else {
+        d.style.background='transparent';d.style.borderColor='#334155';d.style.boxShadow='none';
+      }
+    });
+  }
+})();
+</script>
+<style>
+@keyframes pinShake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+</style>
+
+<div class="relative z-10 mx-auto" style="max-width:1180px;padding:clamp(14px,3vw,28px) clamp(12px,3vw,26px) 90px">
+
+  <!-- ───────── SECURITY BANNER ───────── -->
+  <div id="secBanner" class="banner-slide mb-5 rounded-2xl border px-5 py-4 flex items-start gap-4"
+       style="background:linear-gradient(135deg,rgba(239,68,68,.16),rgba(239,68,68,.06));border-color:rgba(239,68,68,.45);box-shadow:0 0 40px rgba(239,68,68,.12)">
+    <div class="text-2xl leading-none mt-[2px]">⚠️</div>
+    <div class="flex-1 min-w-0">
+      <div class="text-[10px] font-bold tracking-[.18em] uppercase text-crit mb-1">P0 · Security Alert</div>
+      <div class="text-[14.5px] font-semibold text-white leading-snug">
+        rizqui@apex-health.org — New Windows sign-in detected <span class="text-crit">11:38&nbsp;AM, Jun&nbsp;18</span> after two blocked attempts (Jun&nbsp;17–18).
+      </div>
+      <div class="text-[12.5px] text-slate-300 mt-1.5">Action required: change password &amp; revoke active sessions immediately.</div>
+    </div>
+    <button onclick="dismissBanner()" aria-label="Dismiss"
+      class="shrink-0 rounded-full w-7 h-7 flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition text-lg leading-none">×</button>
+  </div>
+
+  <!-- ───────── HEADER ───────── -->
+  <header class="mb-5">
+    <div class="flex items-center gap-3 flex-wrap mb-3">
+      <span class="live-dot"></span>
+      <span class="text-[10.5px] font-semibold tracking-[.16em] uppercase text-slate-500">Command Center v2 · Live</span>
+      <span class="px-2.5 py-1 rounded-full text-[10.5px] font-semibold tracking-wide"
+            style="background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.28);color:#D4AF37">Phoenix, AZ 🌵</span>
+      <span id="clock" class="ml-auto text-[11.5px] text-slate-300 font-medium tabular-nums"></span>
+    </div>
+    <h1 class="font-black tracking-tight leading-[1.05]"
+        style="font-size:clamp(26px,5.5vw,44px);background:linear-gradient(135deg,#F8FAFC,#94A3B8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">
+      Dr. Ibrahim Rizqui
+    </h1>
+    <p class="mt-2 text-[13px] text-slate-500 tracking-wide">Apex Healthcare · Clinical Network · CME · Personal — daily operating picture</p>
+  </header>
+
+  <!-- ───────── CALENDAR STRIP ───────── -->
+  <section class="glass p-4 mb-6">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10.5px] font-bold tracking-[.16em] uppercase text-slate-500">This Week</span>
+      <span class="text-[10.5px] text-slate-600">Jun 18 – 22</span>
+    </div>
+    <div class="grid grid-cols-5 gap-2.5">
+      <div class="rounded-xl p-3 text-center" style="background:rgba(0,201,167,.12);border:1px solid rgba(0,201,167,.4)">
+        <div class="text-[10px] font-bold uppercase tracking-wide text-apex">Wed</div>
+        <div class="text-xl font-extrabold text-white mt-0.5">18</div>
+        <div class="text-[9.5px] font-semibold text-apex mt-1">Today</div>
+      </div>
+      <div class="rounded-xl p-3 text-center bg-white/[.03] border border-white/[.06]">
+        <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500">Thu</div>
+        <div class="text-xl font-extrabold text-slate-200 mt-0.5">19</div>
+        <div class="text-[9.5px] text-slate-600 mt-1">—</div>
+      </div>
+      <div class="rounded-xl p-3 text-center bg-white/[.03] border border-white/[.06]">
+        <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500">Fri</div>
+        <div class="text-xl font-extrabold text-slate-200 mt-0.5">20</div>
+        <div class="text-[9.5px] text-slate-600 mt-1">—</div>
+      </div>
+      <div class="rounded-xl p-3 text-center bg-white/[.03] border border-white/[.06]">
+        <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500">Sat</div>
+        <div class="text-xl font-extrabold text-slate-200 mt-0.5">21</div>
+        <div class="text-[9.5px] text-slate-600 mt-1">—</div>
+      </div>
+      <div class="rounded-xl p-3 text-center" style="background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.35)">
+        <div class="text-[10px] font-bold uppercase tracking-wide text-qv">Sun</div>
+        <div class="text-xl font-extrabold text-white mt-0.5">22</div>
+        <div class="text-[9.5px] font-semibold text-qv mt-1">✈ Flight</div>
+      </div>
+    </div>
+    <div class="mt-3 flex items-center gap-2.5 rounded-xl px-3.5 py-2.5"
+         style="background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.22)">
+      <span class="text-base">✈️</span>
+      <div class="text-[12.5px]">
+        <span class="font-semibold text-white">PHX → BWI</span>
+        <span class="text-slate-400"> · Sun Jun 21 · WN 1040 · 17:55 → 22:15 EDT</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── GLOBAL PRIORITY FILTER ───────── -->
+  <section class="mb-6">
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-[10.5px] font-bold tracking-[.16em] uppercase text-slate-500 mr-1">Filter</span>
+      <button data-pri="all"      onclick="setFilter('all',this)"      class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#E2E8F0">All</button>
+      <button data-pri="critical" onclick="setFilter('critical',this)" class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#FCA5A5">● Critical</button>
+      <button data-pri="high"     onclick="setFilter('high',this)"     class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);color:#FDBA74">● High</button>
+      <button data-pri="medium"   onclick="setFilter('medium',this)"   class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.25);color:#FDE047">● Medium</button>
+      <button data-pri="low"      onclick="setFilter('low',this)"      class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:#86EFAC">● Low</button>
+    </div>
+  </section>
+
+  <!-- ───────── COMPANY CARDS ───────── -->
+  <section class="grid gap-5 mb-10" style="grid-template-columns:repeat(auto-fit,minmax(330px,1fr))">
+
+    <!-- APEX HEALTHCARE -->
+    <article class="glass overflow-hidden" style="border-color:rgba(0,201,167,.2)">
+      <div style="height:3px;background:linear-gradient(90deg,#00C9A7,transparent)"></div>
+      <div class="p-5">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black"
+               style="background:linear-gradient(135deg,#00C9A7,#0d9488);color:#04211c">A</div>
+          <div>
+            <div class="text-[15px] font-bold text-white">Apex Healthcare</div>
+            <div class="text-[11px] text-slate-500">Clinical operations &amp; admin</div>
+          </div>
+          <span class="ml-auto text-[10px] font-bold px-2 py-1 rounded-full" style="background:rgba(239,68,68,.14);color:#FCA5A5">2 critical</span>
+        </div>
+
+        <button onclick="toggleEmails(this)" class="w-full flex items-center justify-between mt-4 mb-1 group">
+          <span class="text-[11px] font-bold tracking-[.12em] uppercase text-slate-400 group-hover:text-apex transition">Emails Needing Action · 7</span>
+          <span class="chev open text-slate-500 text-xs">▾</span>
+        </button>
+        <div class="collapse-body open">
+          <ul class="space-y-2 pt-1">
+            <li class="email-row" data-pri="critical">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#EF4444"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">New Windows sign-in · rizqui@apex-health.org</div>
+                    <div class="text-[11px] text-slate-500">Google Security</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Change password &amp; revoke all active sessions now.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="email-row" data-pri="critical">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#EF4444"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">Nathan Coakley guardianship certificate</div>
+                    <div class="text-[11px] text-slate-500">Ian Herzberger · Complete Care</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Dr. Rizqui to complete &amp; return the certificate.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="email-row" data-pri="high">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#F97316"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">Invoice #2079 — $24,133 outstanding</div>
+                    <div class="text-[11px] text-slate-500">RKW Law Group</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ $148.50 due Jul 10; review outstanding balance.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="email-row" data-pri="high">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#F97316"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">Payroll reports + invoice · Jun 12 cycle</div>
+                    <div class="text-[11px] text-slate-500">Paychex</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Log in to review new reports &amp; invoice.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="email-row" data-pri="medium">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#EAB308"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">Palliative care census · 6/18</div>
+                    <div class="text-[11px] text-slate-500">AccentCare</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Route to clinical coordinator.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="email-row" data-pri="medium">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#EAB308"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">Medical Director relationship</div>
+                    <div class="text-[11px] text-slate-500">CommuniCare · Matt Wayne MD</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Maintain; check last call attendance.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="email-row" data-pri="low">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#22C55E"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">Receipt $219.65 — paid</div>
+                    <div class="text-[11px] text-slate-500">RXNT</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ File for records.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <!-- CLINICAL / NETWORK -->
+    <article class="glass overflow-hidden" style="border-color:rgba(168,85,247,.2)">
+      <div style="height:3px;background:linear-gradient(90deg,#A855F7,transparent)"></div>
+      <div class="p-5">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black"
+               style="background:linear-gradient(135deg,#A855F7,#7e22ce);color:#1e0a33">N</div>
+          <div>
+            <div class="text-[15px] font-bold text-white">Clinical / Network</div>
+            <div class="text-[11px] text-slate-500">Staff &amp; institutional ties</div>
+          </div>
+        </div>
+        <button onclick="toggleEmails(this)" class="w-full flex items-center justify-between mt-4 mb-1 group">
+          <span class="text-[11px] font-bold tracking-[.12em] uppercase text-slate-400 group-hover:text-qv transition">Emails Needing Action · 1</span>
+          <span class="chev open text-slate-500 text-xs">▾</span>
+        </button>
+        <div class="collapse-body open">
+          <ul class="space-y-2 pt-1">
+            <li class="email-row" data-pri="medium">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#EAB308"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">Triannual medical staff meeting</div>
+                    <div class="text-[11px] text-slate-500">Bernadette Jones · MedStar Harbor Hospital</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#d8b4fe">→ Confirm date &amp; RSVP.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <!-- CME / PROFESSIONAL -->
+    <article class="glass overflow-hidden" style="border-color:rgba(249,115,22,.2)">
+      <div style="height:3px;background:linear-gradient(90deg,#F97316,transparent)"></div>
+      <div class="p-5">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black"
+               style="background:linear-gradient(135deg,#F97316,#c2410c);color:#2a1206">C</div>
+          <div>
+            <div class="text-[15px] font-bold text-white">CME / Professional</div>
+            <div class="text-[11px] text-slate-500">Education &amp; development</div>
+          </div>
+          <span class="ml-auto text-[10px] font-bold px-2 py-1 rounded-full" style="background:rgba(249,115,22,.14);color:#FDBA74">tonight</span>
+        </div>
+        <button onclick="toggleEmails(this)" class="w-full flex items-center justify-between mt-4 mb-1 group">
+          <span class="text-[11px] font-bold tracking-[.12em] uppercase text-slate-400 group-hover:text-high transition">Emails Needing Action · 1</span>
+          <span class="chev open text-slate-500 text-xs">▾</span>
+        </button>
+        <div class="collapse-body open">
+          <ul class="space-y-2 pt-1">
+            <li class="email-row" data-pri="high">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#F97316"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">“Ask the Professor” webinar — TONIGHT</div>
+                    <div class="text-[11px] text-slate-500">A4M · Jun 18</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#fdba74">→ Check email for join link before start.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <!-- PERSONAL / TECH SECURITY -->
+    <article class="glass overflow-hidden" style="border-color:rgba(34,197,94,.2)">
+      <div style="height:3px;background:linear-gradient(90deg,#22C55E,transparent)"></div>
+      <div class="p-5">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black"
+               style="background:linear-gradient(135deg,#22C55E,#15803d);color:#052012">P</div>
+          <div>
+            <div class="text-[15px] font-bold text-white">Personal / Tech Security</div>
+            <div class="text-[11px] text-slate-500">Accounts &amp; access</div>
+          </div>
+        </div>
+        <button onclick="toggleEmails(this)" class="w-full flex items-center justify-between mt-4 mb-1 group">
+          <span class="text-[11px] font-bold tracking-[.12em] uppercase text-slate-400 group-hover:text-low transition">Emails Needing Action · 1</span>
+          <span class="chev open text-slate-500 text-xs">▾</span>
+        </button>
+        <div class="collapse-body open">
+          <ul class="space-y-2 pt-1">
+            <li class="email-row" data-pri="medium">
+              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="pri-dot mt-1.5" style="background:#EAB308"></span>
+                  <div class="min-w-0">
+                    <div class="text-[12.5px] font-semibold text-white">New device login today</div>
+                    <div class="text-[11px] text-slate-500">Notion</div>
+                    <div class="text-[11.5px] mt-1.5" style="color:#86efac">→ Verify in account settings.</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ───────── PCC TRACK (Notion) ───────── -->
+  <section class="glass p-5 mb-10">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-[11px] font-bold tracking-[.14em] uppercase text-slate-400">PCC Integration Track</span>
+      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(234,179,8,.12);color:#FDE047">4 open · P2</span>
+    </div>
+    <div class="grid gap-2.5" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+      <div class="email-row rounded-xl bg-white/[.03] border border-white/[.06] p-3.5" data-pri="medium">
+        <div class="flex items-center gap-2 mb-1"><span class="pri-dot" style="background:#EAB308"></span><span class="text-[12.5px] font-semibold text-white">API authorization pending</span></div>
+        <div class="text-[11.5px] text-slate-500">Blocking QIS tech integration.</div>
+      </div>
+      <div class="email-row rounded-xl bg-white/[.03] border border-white/[.06] p-3.5" data-pri="medium">
+        <div class="flex items-center gap-2 mb-1"><span class="pri-dot" style="background:#EAB308"></span><span class="text-[12.5px] font-semibold text-white">Workflow-review meeting</span></div>
+        <div class="text-[11.5px] text-slate-500">Book for application 800711.</div>
+      </div>
+      <div class="email-row rounded-xl bg-white/[.03] border border-white/[.06] p-3.5" data-pri="medium">
+        <div class="flex items-center gap-2 mb-1"><span class="pri-dot" style="background:#EAB308"></span><span class="text-[12.5px] font-semibold text-white">Sandbox mTLS certificate</span></div>
+        <div class="text-[11.5px] text-slate-500">Client certificate blocker.</div>
+      </div>
+      <div class="email-row rounded-xl bg-white/[.03] border border-white/[.06] p-3.5" data-pri="medium">
+        <div class="flex items-center gap-2 mb-1"><span class="pri-dot" style="background:#EAB308"></span><span class="text-[12.5px] font-semibold text-white">App validation meeting</span></div>
+        <div class="text-[11.5px] text-slate-500">Schedule first validation session.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── ADVISORY COUNCIL ───────── -->
+  <section>
+    <div class="text-center mb-6">
+      <div class="text-[10.5px] font-bold tracking-[.2em] uppercase text-slate-500 mb-2">Strategic Counsel</div>
+      <h2 class="font-black tracking-tight" style="font-size:clamp(22px,4vw,34px);background:linear-gradient(135deg,#D4AF37,#FDE9A8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">
+        Advisory Council
+      </h2>
+      <p class="text-[12.5px] text-slate-500 mt-2">Independent Board Analysis · June 18, 2026</p>
+    </div>
+
+    <!-- CHAIRMAN — full width -->
+    <div class="council-card glass mb-5 p-6 relative overflow-hidden" style="border-color:rgba(212,175,55,.55);box-shadow:0 0 48px rgba(212,175,55,.18),inset 0 0 60px rgba(212,175,55,.04)">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#D4AF37,#FDE9A8,rgba(212,175,55,.3))"></div>
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style="background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.35)">⚖️</div>
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="text-[17px] font-extrabold text-white leading-tight">Marcus Aurelius</div>
+            <span class="text-[9.5px] font-black px-2.5 py-0.5 rounded-full tracking-widest" style="background:rgba(212,175,55,.22);color:#D4AF37;border:1px solid rgba(212,175,55,.4)">CHAIRMAN</span>
+          </div>
+          <div class="text-[11.5px] text-slate-400 mt-0.5">Delivers the final unified recommendation · Stoic · Measured · Wise</div>
+        </div>
+      </div>
+      <div class="rounded-xl p-4" style="background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2)">
+        <div class="text-[10px] font-bold tracking-[.15em] uppercase mb-2" style="color:rgba(212,175,55,.75)">Chairman’s Verdict</div>
+        <p class="text-[13px] text-slate-200 leading-relaxed">"Six items demand execution before Phoenix departure. The HCSA license forward to Stacey is the single action that changes QLSS from zero revenue to active. The BofA reply is the single action that protects your largest credit relationship. Do not leave tomorrow without both done. All else is noise."</p>
+      </div>
+    </div>
+
+    <!-- 6 BOARD MEMBERS — 2-column grid -->
+    <div class="grid gap-4 mb-5" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+
+      <!-- Cosimo de’ Medici — CFO -->
+      <div class="council-card glass p-4" style="border-color:rgba(16,185,129,.3)">
+        <div class="flex items-center gap-3 mb-2.5">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(16,185,129,.18);border:1px solid rgba(16,185,129,.28)">💰</div>
+          <div>
+            <div class="text-[13.5px] font-bold text-white leading-tight">Cosimo de’ Medici</div>
+            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(16,185,129,.12);color:#10B981">CFO · Capital Allocation</div>
+          </div>
+        </div>
+        <p class="text-[12px] text-slate-300 leading-relaxed">"Revenue is −42.8% MTD. Stripe frozen since November — that is 7 months of blocked collections. Fix it in 2 minutes. QLSS has $24K+ in legal fees with zero revenue — the HCSA license is the only fix that changes the math. Elkton is 21-day upside. BofA silence = credit action = you cannot afford that right now."</p>
+      </div>
+
+      <!-- Hippocrates — Medical Director -->
+      <div class="council-card glass p-4" style="border-color:rgba(99,102,241,.3)">
+        <div class="flex items-center gap-3 mb-2.5">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(99,102,241,.18);border:1px solid rgba(99,102,241,.28)">⚕️</div>
+          <div>
+            <div class="text-[13.5px] font-bold text-white leading-tight">Hippocrates</div>
+            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(99,102,241,.12);color:#6366F1">Medical Director · Clinical Safety</div>
+          </div>
+        </div>
+        <p class="text-[12px] text-slate-300 leading-relaxed">"Three providers at 500+ visits/month is a payer audit trigger. Do not approve Dr. Majdi or Althea’s time-off until you know whether this is a documentation issue or actual over-billing. CDS physical certificate gap creates a prescribing defensibility risk. The Geriscript therapeutic interchange requires physician acknowledgment — delegate to clinical team today, do not let it lapse."</p>
+      </div>
+
+      <!-- Subutai — COO -->
+      <div class="council-card glass p-4" style="border-color:rgba(249,115,22,.3)">
+        <div class="flex items-center gap-3 mb-2.5">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(249,115,22,.18);border:1px solid rgba(249,115,22,.28)">⚔️</div>
+          <div>
+            <div class="text-[13.5px] font-bold text-white leading-tight">Subutai</div>
+            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(249,115,22,.12);color:#F97316">COO · Logistics &amp; Execution</div>
+          </div>
+        </div>
+        <p class="text-[12px] text-slate-300 leading-relaxed">"The fax cron loop fired 40+ times overnight — kill it before Phoenix or it will bleed Twilio budget all weekend with no one watching. HCSA goes to Stacey with a deadline. EB-3 letters go to Stacey for prep. Elkton outreach needs an owner by end of day. You cannot execute everything — assign named owners for every item that is not a 5-minute personal action."</p>
+      </div>
+
+      <!-- Sun Tzu — Strategy -->
+      <div class="council-card glass p-4" style="border-color:rgba(6,182,212,.3)">
+        <div class="flex items-center gap-3 mb-2.5">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(6,182,212,.18);border:1px solid rgba(6,182,212,.28)">🗡️</div>
+          <div>
+            <div class="text-[13.5px] font-bold text-white leading-tight">Sun Tzu</div>
+            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(6,182,212,.12);color:#06B6D4">Strategy · Asymmetric Advantage</div>
+          </div>
+        </div>
+        <p class="text-[12px] text-slate-300 leading-relaxed">"Elkton is not a crisis — it is terrain. A competing group loses their position in 21 days. You have the infrastructure and the credibility to step in before anyone else moves. The optimal move is to contact Luis today with one paragraph: who you are, what Apex covers, request a call. The window is narrow. Timing is the advantage."</p>
+      </div>
+
+      <!-- Cleopatra — Business Development -->
+      <div class="council-card glass p-4" style="border-color:rgba(236,72,153,.3)">
+        <div class="flex items-center gap-3 mb-2.5">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(236,72,153,.18);border:1px solid rgba(236,72,153,.28)">👑</div>
+          <div>
+            <div class="text-[13.5px] font-bold text-white leading-tight">Cleopatra</div>
+            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(236,72,153,.12);color:#EC4899">Business Dev · Alliances</div>
+          </div>
+        </div>
+        <p class="text-[12px] text-slate-300 leading-relaxed">"BofA’s Rosamelia is not a threat — she is an open door. A 5-minute professional reply preserves the relationship and signals you are in control. Xhalo360 is waiting on you for the Discovery call — they are ready to implement. Move fast on both: relationships wait only so long before they find someone else."</p>
+      </div>
+
+      <!-- Julius Caesar — Action -->
+      <div class="council-card glass p-4" style="border-color:rgba(139,92,246,.3)">
+        <div class="flex items-center gap-3 mb-2.5">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(139,92,246,.18);border:1px solid rgba(139,92,246,.28)">🏛️</div>
+          <div>
+            <div class="text-[13.5px] font-bold text-white leading-tight">Julius Caesar</div>
+            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(139,92,246,.12);color:#8B5CF6">Action · Bold Decisions</div>
+          </div>
+        </div>
+        <p class="text-[12px] text-slate-300 leading-relaxed">"You have 6 critical items and 18 hours before Phoenix. Stop analyzing. Veni: open email. Vidi: forward HCSA to Stacey, reply to BofA, fix Stripe, sign DocuSign, sign CliniSign, email Luis at Elkton. Vici: board on Phoenix. Every minute spent not doing those 6 things is a minute spent losing ground."</p>
+      </div>
+
+    </div>
+
+    <!-- UNIFIED BOARD RECOMMENDATION -->
+    <div class="glass p-5" style="border-color:rgba(212,175,55,.45);background:linear-gradient(135deg,rgba(212,175,55,.1),rgba(212,175,55,.03));box-shadow:0 0 40px rgba(212,175,55,.12)">
+      <div class="flex items-center gap-3 mb-3 flex-wrap">
+        <span class="text-xl">⚖️</span>
+        <span class="text-[11.5px] font-black tracking-[.14em] uppercase" style="color:#D4AF37">Unified Board Recommendation · Marcus Aurelius, Chairman</span>
+      </div>
+      <p class="text-[13.5px] text-slate-100 leading-relaxed font-medium">
+        "Execute the HCSA forward and BofA reply before 9pm tonight. Delegate Elkton outreach and the EB-3 letters to Stacey. Kill the fax cron loop. Leave for Phoenix clean — not with 6 open Tier-1 items burning behind you."
+      </p>
+    </div>
+  </section>
+
+  <footer class="mt-12 text-center text-[10.5px] text-slate-600">
+    Apex Healthcare · Advanced Medicine Division — internal operating picture · generated Jun 18, 2026
+  </footer>
+
+</div>
+
+<script>
+  function tick(){
+    const o={weekday:'short',hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'America/New_York'};
+    document.getElementById('clock').textContent=new Date().toLocaleString('en-US',o)+' EDT';
+  }
+  tick(); setInterval(tick,1000);
+
+  function dismissBanner(){ document.getElementById('secBanner').classList.add('dismissed'); }
+
+  function toggleEmails(btn){
+    const body=btn.nextElementSibling;
+    const chev=btn.querySelector('.chev');
+    body.classList.toggle('open'); chev.classList.toggle('open');
+  }
+
+  function setFilter(pri,el){
+    document.querySelectorAll('.pri-btn').forEach(b=>{b.style.outline='none';b.style.opacity='.7'});
+    el.style.opacity='1'; el.style.outline='1px solid rgba(255,255,255,.35)';
+    document.querySelectorAll('.email-row').forEach(row=>{
+      const p=row.getAttribute('data-pri');
+      const show=(pri==='all')||(p===pri);
+      row.classList.toggle('filtered-out',!show);
+    });
+  }
+  setFilter('all',document.querySelector('.pri-btn[data-pri="all"]'));
+</script>
+</body>
+</html>
