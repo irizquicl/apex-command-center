@@ -395,6 +395,77 @@
     .matrix-col-header { grid-template-columns: 1fr; }
     .focus-what { font-size: 15px; }
   }
+
+  /* ── Brain Dump ── */
+  .dump-header { margin-bottom: 20px; }
+  .dump-header h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .dump-header p { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+  .dump-filter-row { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+  .dump-chip {
+    padding: 6px 16px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: #fff;
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+  }
+  .dump-chip:hover { border-color: var(--text); color: var(--text); }
+  .dump-chip.active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+
+  .dump-timeline { position: relative; padding-left: 28px; }
+  .dump-timeline::before {
+    content: ''; position: absolute; left: 7px; top: 8px; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .dump-group { margin-bottom: 36px; }
+  .dump-date-badge {
+    position: relative; display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-secondary); margin-bottom: 14px;
+  }
+  .dump-date-badge::before {
+    content: ''; width: 14px; height: 14px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--text); position: absolute; left: -31px;
+    box-shadow: 0 0 0 3px var(--bg);
+  }
+  .dump-date-badge.today::before { background: var(--text); }
+  .dump-date-badge .today-pill {
+    background: #1a1a1a; color: #fff; font-size: 9px; font-weight: 800;
+    padding: 2px 7px; border-radius: 10px; letter-spacing: 0.5px;
+  }
+
+  .dump-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 10px;
+    border-left: 3px solid var(--border);
+    transition: box-shadow 0.2s; cursor: default;
+  }
+  .dump-card:hover { box-shadow: var(--shadow-hover); }
+  .dump-card.tag-mv { border-left-color: var(--green); }
+  .dump-card.tag-qis { border-left-color: #6b46c1; }
+  .dump-card.tag-apex { border-left-color: var(--blue); }
+  .dump-card.tag-qlss { border-left-color: var(--red); }
+  .dump-card.dump-hidden { display: none; }
+
+  .dump-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .dump-card-title { font-size: 15px; font-weight: 700; line-height: 1.35; letter-spacing: -0.1px; }
+  .dump-tag-pill {
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+  }
+  .dump-tag-pill.mv { background: var(--green-light); color: var(--green); }
+  .dump-tag-pill.qis { background: #ede9fe; color: #5b21b6; }
+  .dump-tag-pill.apex { background: var(--blue-light); color: var(--blue); }
+  .dump-tag-pill.qlss { background: var(--red-light); color: var(--red); }
+
+  .dump-body { font-size: 13px; line-height: 1.65; color: var(--text-secondary); }
+  .dump-body p { margin-bottom: 5px; }
+  .dump-body p:last-child { margin-bottom: 0; }
+  .dump-body strong { color: var(--text); }
+  .dump-alert {
+    margin-top: 10px; padding: 9px 12px; border-radius: 8px;
+    background: #fff3e0; border-left: 3px solid var(--orange);
+    font-size: 12px; color: var(--orange); font-weight: 500; line-height: 1.5;
+  }
 </style>
 </head>
 <body>
@@ -427,6 +498,7 @@
     <button class="nav-tab" onclick="switchTab('all',this)">📋 All Tasks</button>
     <button class="nav-tab" onclick="switchTab('matrix',this)">⊞ Matrix</button>
     <button class="nav-tab" onclick="switchTab('mindmap',this)">✦ Mind Map</button>
+    <button class="nav-tab" onclick="switchTab('dump',this)">🧠 Brain Dump</button>
   </nav>
 </header>
 
@@ -492,6 +564,158 @@
     <div class="mindmap-container">
       <svg id="mindmap-svg" viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
+  </section>
+
+  <!-- ── BRAIN DUMP TAB ── -->
+  <section id="tab-dump" class="tab-pane">
+
+    <div class="dump-header">
+      <h2>🧠 Brain Dump</h2>
+      <p>Raw ideas &amp; brainstorms captured from dictation — unpolished, exactly as they came out</p>
+    </div>
+
+    <div class="dump-filter-row">
+      <button class="dump-chip active" onclick="dumpFilter('all',this)">All</button>
+      <button class="dump-chip" onclick="dumpFilter('mv',this)">Maison Vitalis</button>
+      <button class="dump-chip" onclick="dumpFilter('qis',this)">QIS / Tech</button>
+      <button class="dump-chip" onclick="dumpFilter('apex',this)">Apex</button>
+      <button class="dump-chip" onclick="dumpFilter('qlss',this)">QLSS</button>
+    </div>
+
+    <div class="dump-timeline">
+
+      <!-- Jun 19 -->
+      <div class="dump-group">
+        <div class="dump-date-badge today">
+          <span class="today-pill">Today</span> Jun 19, 2026
+        </div>
+
+        <div class="dump-card tag-qis" data-dtag="qis">
+          <div class="dump-card-header">
+            <div class="dump-card-title">QIS Rounding System — Three-Tier Design</div>
+            <span class="dump-tag-pill qis">QIS / Tech</span>
+          </div>
+          <div class="dump-body">
+            <p>180-patient SNF, 25 rounds/day max. Co-designed a complete three-tier triage system.</p>
+            <p><strong>Tier 1 — New Admits:</strong> Auto-pulled from PCC admissions feed. Always top of list. Chart-first protocol: workstation → room → orders on exit.</p>
+            <p><strong>Tier 2 — Acute Flags:</strong> Abnormal vitals, nursing escalation, new labs, med changes. QIS surfaces the reason for each flag. Chart-first.</p>
+            <p><strong>Tier 3 — Routine Compliance:</strong> LTC monthly / ST weekly. Sorted geographically wing → floor → room descending. See-first batch: physical only during rounds, sit once after to knock out charts in order.</p>
+            <p>Morning digest pushed to phone before rounds begin. QIS monitors all 180 patients continuously — fires alert if anyone outside today's 25 deteriorates mid-rounds (safety net).</p>
+            <div class="dump-alert">⚡ Gate: DigiCert X9 mTLS cert currently blocked. All QIS logic buildable now against mock data — cert just flips it live.</div>
+          </div>
+        </div>
+
+        <div class="dump-card tag-mv" data-dtag="mv">
+          <div class="dump-card-header">
+            <div class="dump-card-title">SSRP Conference — Vendor &amp; Partnership Targets</div>
+            <span class="dump-tag-pill mv">Maison Vitalis</span>
+          </div>
+          <div class="dump-body">
+            <p>At SSRP / Peptide World Congress 2026 in Phoenix — today &amp; Saturday.</p>
+            <p><strong>Mission:</strong> Lock compounding pharmacy vendor from Partner Hall today. Ask SSRP faculty about Dubai Longevity Authority (DLA) affiliate clinic pathway. Collect IV therapy &amp; diagnostics vendor contacts.</p>
+            <p>This is the one concentrated window to build Maison Vitalis's clinical supply chain before launch.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jun 18 -->
+      <div class="dump-group">
+        <div class="dump-date-badge">Jun 18, 2026</div>
+
+        <div class="dump-card tag-mv" data-dtag="mv">
+          <div class="dump-card-header">
+            <div class="dump-card-title">Maison Vitalis — Full Launch Vision (dictated)</div>
+            <span class="dump-tag-pill mv">Maison Vitalis</span>
+          </div>
+          <div class="dump-body">
+            <p>— Clinical backbone on SSRP framework: <strong>biomarker phenotyping as standard intake</strong> — not optional, it's the differentiator</p>
+            <p>— Apply to Dubai Longevity Authority (DLA) as affiliate clinic — ask SSRP faculty this weekend, they know the pathway</p>
+            <p>— Mahreen must be SSRP-certified before seeing first MV patient — non-negotiable clinical standard</p>
+            <p>— IV therapy infusion suite: vendor selection is a pre-launch blocker — lock at PWC26 Partner Hall</p>
+            <p>— Pre-sale tiers: <strong>Foundation $299/mo · Core $599/mo · Premier $999/mo</strong> — launch in 10 days from Phoenix return</p>
+            <p>— Premier tier = quarterly consult with Dr. Rizqui (his only touchpoint in patient flow — everything else through Mahreen)</p>
+            <p>— Architect outreach (Anousis/James) for 2809 Boston St floor plan — AI mockup version first</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jun 12–17 -->
+      <div class="dump-group">
+        <div class="dump-date-badge">Jun 12–17, 2026</div>
+
+        <div class="dump-card tag-qis" data-dtag="qis">
+          <div class="dump-card-header">
+            <div class="dump-card-title">Automation &amp; Systems Wishlist</div>
+            <span class="dump-tag-pill qis">QIS / Tech</span>
+          </div>
+          <div class="dump-body">
+            <p>— Nightly dashboard rebuild pulling live from Notion + memory (not yet wired — this is the end-state goal)</p>
+            <p>— Fireflies → ClickUp pipeline: every meeting auto-generates tasks in ClickUp (in queue)</p>
+            <p>— AI phone system for Apex: answer, route, take messages — no human receptionist needed for inbound</p>
+            <p>— DocuSign filter rule: suppress clinical/routine orders from alerts, always surface contracts &amp; business docs ✓ confirmed Jun 19</p>
+          </div>
+        </div>
+
+        <div class="dump-card tag-apex" data-dtag="apex">
+          <div class="dump-card-header">
+            <div class="dump-card-title">Apex Growth — Big Bets</div>
+            <span class="dump-tag-pill apex">Apex</span>
+          </div>
+          <div class="dump-body">
+            <p>— CCM revenue gap: $67–115K/mo per facility uncaptured — needs a billing strategy decision, not more research</p>
+            <p>— Heart-failure accreditation program + hospital partnership — medium-term, high-prestige positioning</p>
+            <p>— Open downtown primary care office in Mearsview, MD — concept scoped, nothing moving yet</p>
+            <p>— Cardiology buildout: call Riaz Haq + Althea (NP) — relationships already exist, just needs a call</p>
+            <p>— Xhalo360: they're ready for Discovery call &amp; to implement — Ibrahim needs to move first</p>
+          </div>
+        </div>
+
+        <div class="dump-card tag-apex" data-dtag="apex">
+          <div class="dump-card-header">
+            <div class="dump-card-title">Baltimore Clinic Design — Showroom Route</div>
+            <span class="dump-tag-pill apex">Apex</span>
+          </div>
+          <div class="dump-body">
+            <p>High-end LVT + architectural ceilings + furniture near Baltimore 21224. Best cluster: <strong>Timonium/Lutherville Greenspring Drive corridor</strong>.</p>
+            <p>Recommended route: CBSI (ceilings) → Floors Etc. (LVT anchor pick) → Baltimore Design Center + Cornerstone (furniture density). For 2809 Boston St buildout.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Earlier -->
+      <div class="dump-group">
+        <div class="dump-date-badge">Earlier</div>
+
+        <div class="dump-card tag-qlss" data-dtag="qlss">
+          <div class="dump-card-header">
+            <div class="dump-card-title">QLSS — Post-License Structural Vision</div>
+            <span class="dump-tag-pill qlss">QLSS</span>
+          </div>
+          <div class="dump-body">
+            <p>— Once licensed: assign a named operations lead so Ibrahim is NOT the execution bottleneck</p>
+            <p>— Build first-40 demand map (facility + seat count) before staff arrive — pre-sold pipeline</p>
+            <p>— Pakistan golden candidates: Fauji Foundation sourcing agreement needs SLAs executed</p>
+            <p>— J1 fee waiver political contacts — engage now, these have a long lead time</p>
+            <p>— PCC education &amp; training program designed specifically for international RN staffing cohorts</p>
+          </div>
+        </div>
+
+        <div class="dump-card tag-mv" data-dtag="mv">
+          <div class="dump-card-header">
+            <div class="dump-card-title">MV Clinical Protocols — Research Queue</div>
+            <span class="dump-tag-pill mv">Maison Vitalis</span>
+          </div>
+          <div class="dump-body">
+            <p>— In-house genetic + methylation labs at 2809 Boston St — separates MV from every competitor</p>
+            <p>— Order Sterile GHK-CU + Cerebrolysin from 503B pharmacy vendor</p>
+            <p>— CLIA waiver + facility NPI if running in-office labs (required before first test)</p>
+            <p>— Attend FDA PCAC meeting at White Oak (Jul 23) — regulatory intelligence for longevity protocols</p>
+            <p>— FDA docket comment FDA-2025-N-6895 — oral presentation decision by Jun 30, full comment due Jul 9</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dump-timeline -->
   </section>
 
 </main>
@@ -676,6 +900,16 @@ function switchTab(name, btn) {
   document.getElementById('tab-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
   if (name === 'mindmap') renderMindMap();
+}
+
+// ─ BRAIN DUMP FILTER
+function dumpFilter(tag, btn) {
+  document.querySelectorAll('.dump-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.dump-card').forEach(card => {
+    const t = card.getAttribute('data-dtag');
+    card.classList.toggle('dump-hidden', tag !== 'all' && t !== tag);
+  });
 }
 
 // ─ FOCUS MODE
