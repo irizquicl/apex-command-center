@@ -1,662 +1,888 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Dr. Ibrahim · Command Center v2</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: { inter: ['Inter','system-ui','sans-serif'] },
-      colors: {
-        ink: '#080C18',
-        apex: '#00C9A7',
-        qv: '#A855F7',
-        crit: '#EF4444',
-        high: '#F97316',
-        med: '#EAB308',
-        low: '#22C55E',
-        gold: '#D4AF37',
-      }
-    }
-  }
-}
-</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex Command Center</title>
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    background:radial-gradient(1200px 700px at 80% -10%, rgba(0,201,167,.07), transparent 60%),
-               radial-gradient(1000px 600px at -10% 20%, rgba(168,85,247,.06), transparent 55%),
-               #080C18;
-    font-family:'Inter',system-ui,sans-serif;color:#E2E8F0;min-height:100vh;
-    -webkit-font-smoothing:antialiased;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #d32f2f;
+    --red-light: #ffebee;
+    --orange: #e65100;
+    --orange-light: #fff3e0;
+    --blue: #1565c0;
+    --blue-light: #e3f2fd;
+    --gray: #546e7a;
+    --gray-light: #eceff1;
+    --green: #2e7d32;
+    --green-light: #e8f5e9;
+    --text: #1a1a1a;
+    --text-secondary: #555;
+    --border: #e0e0e0;
+    --bg: #f8f9fa;
+    --card-bg: #fff;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
   }
-  ::-webkit-scrollbar{width:6px}
-  ::-webkit-scrollbar-track{background:transparent}
-  ::-webkit-scrollbar-thumb{background:#1E293B;border-radius:3px}
-  .glass{
-    background:rgba(255,255,255,.035);
-    border:1px solid rgba(255,255,255,.07);
-    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-    border-radius:20px;
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
-  .live-dot{width:8px;height:8px;border-radius:50%;background:#22C55E;
-    box-shadow:0 0 8px #22C55E,0 0 16px rgba(34,197,94,.4);
-    animation:pulse 2.4s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-  .pri-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;display:inline-block}
-  .collapse-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
-  .collapse-body.open{max-height:1600px}
-  .chev{transition:transform .3s ease}
-  .chev.open{transform:rotate(180deg)}
-  .council-card{transition:transform .25s ease,box-shadow .25s ease}
-  .council-card:hover{transform:translateY(-4px)}
-  .filtered-out{display:none!important}
-  .banner-slide{transition:opacity .4s ease,transform .4s ease,max-height .4s ease,margin .4s ease,padding .4s ease}
-  .banner-slide.dismissed{opacity:0;transform:translateY(-10px);max-height:0;margin:0;padding:0;overflow:hidden}
+
+  .header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .header-title h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .header-title p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+  }
+  .header-stats {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: right; }
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); font-weight: 600; }
+  .stat-value { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-divider { width: 1px; height: 28px; background: var(--border); }
+
+  .nav {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    padding: 8px 18px;
+    border-radius: 10px 10px 0 0;
+    border: none;
+    background: transparent;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-tab:hover { color: var(--text); background: var(--bg); }
+  .nav-tab.active { color: var(--text); font-weight: 700; border-bottom: 2px solid var(--text); background: transparent; }
+
+  .main { padding: 24px; max-width: 1100px; margin: 0 auto; }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; animation: fadeIn 0.15s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .focus-intro { margin-bottom: 20px; }
+  .focus-intro h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .focus-intro p { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+  .focus-grid { display: grid; gap: 16px; }
+
+  .focus-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 24px;
+    border-left: 4px solid var(--red);
+    transition: box-shadow 0.2s, transform 0.2s, opacity 0.3s;
+  }
+  .focus-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+  .focus-card.done { opacity: 0.4; border-left-color: #ccc; }
+
+  .focus-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+
+  .company-pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .company-pill.apex { background: var(--blue-light); color: var(--blue); }
+  .company-pill.qlss { background: var(--red-light); color: var(--red); }
+  .company-pill.maison { background: var(--green-light); color: var(--green); }
+  .company-pill.admin { background: var(--gray-light); color: var(--gray); }
+
+  .priority-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .priority-badge.do-now { background: var(--red-light); color: var(--red); }
+  .priority-badge.schedule { background: var(--orange-light); color: var(--orange); }
+  .priority-badge.delegate { background: var(--blue-light); color: var(--blue); }
+  .priority-badge.eliminate { background: var(--gray-light); color: var(--gray); }
+
+  .focus-what {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.2px;
+    margin-bottom: 16px;
+  }
+
+  .focus-section-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .how-list { list-style: none; margin-bottom: 14px; }
+  .how-list li {
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 6px 0 6px 26px;
+    position: relative;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .how-list li:last-child { border-bottom: none; }
+  .how-list li::before {
+    content: attr(data-num);
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 18px;
+    height: 18px;
+    background: var(--red);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .why-box {
+    background: #fafafa;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-secondary);
+    border-left: 3px solid var(--orange);
+    line-height: 1.5;
+  }
+
+  .focus-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+  .owner-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: #f0f0f0;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .btn-done {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-done:hover { background: var(--green); border-color: var(--green); color: #fff; }
+  .btn-done.marked { background: var(--green); border-color: var(--green); color: #fff; }
+
+  .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-chip {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: var(--text); color: var(--text); }
+  .filter-chip.active { background: var(--text); border-color: var(--text); color: #fff; }
+
+  .tasks-list { display: grid; gap: 10px; }
+  .task-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+  .task-card:hover { box-shadow: var(--shadow-hover); }
+  .task-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .task-header:hover { background: #fafafa; }
+  .task-title-text { flex: 1; font-size: 15px; font-weight: 600; }
+  .task-chevron { font-size: 11px; color: var(--text-secondary); transition: transform 0.2s; flex-shrink: 0; }
+  .task-card.expanded .task-chevron { transform: rotate(180deg); }
+  .task-body {
+    display: none;
+    padding: 0 16px 16px;
+    border-top: 1px solid #f5f5f5;
+    padding-top: 14px;
+  }
+  .task-card.expanded .task-body { display: block; }
+  .task-body .how-list li::before { background: var(--blue); }
+
+  .matrix-col-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .matrix-col-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 6px;
+    border-radius: 6px;
+    background: #f5f5f5;
+  }
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .matrix-quadrant {
+    border-radius: var(--radius);
+    padding: 16px;
+    min-height: 160px;
+  }
+  .matrix-quadrant.do-now { background: #fff5f5; border: 1.5px solid #ffcdd2; }
+  .matrix-quadrant.schedule { background: #fff8f0; border: 1.5px solid #ffe0b2; }
+  .matrix-quadrant.delegate { background: #f0f6ff; border: 1.5px solid #bbdefb; }
+  .matrix-quadrant.eliminate { background: #f5f5f5; border: 1.5px solid #e0e0e0; }
+  .matrix-q-title {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+  .matrix-quadrant.do-now .matrix-q-title { color: var(--red); }
+  .matrix-quadrant.schedule .matrix-q-title { color: var(--orange); }
+  .matrix-quadrant.delegate .matrix-q-title { color: var(--blue); }
+  .matrix-quadrant.eliminate .matrix-q-title { color: var(--gray); }
+  .matrix-q-sub { font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; font-style: italic; }
+  .matrix-tasks { display: flex; flex-direction: column; gap: 6px; }
+  .matrix-pill {
+    background: #fff;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    cursor: pointer;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    transition: box-shadow 0.15s;
+    line-height: 1.35;
+  }
+  .matrix-pill:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  .matrix-pill-co { font-size: 10px; font-weight: 700; text-transform: uppercase; opacity: 0.55; flex-shrink: 0; padding-top: 1px; }
+
+  .mindmap-container {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+    overflow: hidden;
+  }
+  #mindmap-svg { width: 100%; height: auto; display: block; }
+
+  .tooltip {
+    position: fixed;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    max-width: 280px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    line-height: 1.5;
+  }
+  .tooltip.visible { opacity: 1; }
+  .tooltip strong { display: block; font-size: 13px; margin-bottom: 5px; }
+  .tooltip .tip-what { font-size: 12px; margin-bottom: 6px; line-height: 1.4; }
+  .tooltip .tip-meta { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+  footer {
+    text-align: center;
+    padding: 28px 24px;
+    font-size: 12px;
+    color: #aaa;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 640px) {
+    .header { padding: 14px 16px 0; }
+    .header-title h1 { font-size: 18px; }
+    .header-stats { gap: 10px; }
+    .stat-value { font-size: 14px; }
+    .main { padding: 14px; }
+    .matrix-grid { grid-template-columns: 1fr; }
+    .matrix-col-header { grid-template-columns: 1fr; }
+    .focus-what { font-size: 15px; }
+  }
 </style>
 </head>
-<body class="font-inter">
+<body>
 
-<!-- ───────── PIN LOCK OVERLAY ───────── -->
-<div id="pinOverlay" style="
-  position:fixed;inset:0;z-index:9999;
-  background:radial-gradient(1200px 700px at 80% -10%,rgba(0,201,167,.08),transparent 60%),
-             radial-gradient(1000px 600px at -10% 20%,rgba(168,85,247,.07),transparent 55%),
-             #080C18;
-  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;
-">
-  <div style="
-    background:rgba(255,255,255,.035);
-    border:1px solid rgba(255,255,255,.09);
-    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-    border-radius:24px;padding:48px 44px 44px;
-    text-align:center;width:min(92vw,360px);
-    box-shadow:0 0 80px rgba(0,201,167,.06),0 32px 80px rgba(0,0,0,.5);
-  ">
-    <!-- Lock icon -->
-    <div style="width:56px;height:56px;border-radius:50%;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00C9A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
+<header class="header">
+  <div class="header-top">
+    <div class="header-title">
+      <h1>Apex Command Center</h1>
+      <p id="greeting">Loading...</p>
     </div>
-    <div style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#64748B;margin-bottom:8px;">Command Center</div>
-    <div style="font-size:22px;font-weight:800;color:#F8FAFC;letter-spacing:-.3px;margin-bottom:4px;">Enter PIN</div>
-    <div style="font-size:13px;color:#475569;margin-bottom:28px;">Access restricted to authorized operators</div>
-    <!-- PIN dots -->
-    <div id="pinDots" style="display:flex;justify-content:center;gap:12px;margin-bottom:24px;">
-      <div class="pd" style="width:12px;height:12px;border-radius:50%;border:2px solid #334155;background:transparent;transition:all .2s"></div>
-      <div class="pd" style="width:12px;height:12px;border-radius:50%;border:2px solid #334155;background:transparent;transition:all .2s"></div>
-      <div class="pd" style="width:12px;height:12px;border-radius:50%;border:2px solid #334155;background:transparent;transition:all .2s"></div>
-      <div class="pd" style="width:12px;height:12px;border-radius:50%;border:2px solid #334155;background:transparent;transition:all .2s"></div>
+    <div class="header-stats">
+      <div class="stat">
+        <div class="stat-label">MTD Revenue</div>
+        <div class="stat-value">$145,203</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <div class="stat-label">Cash</div>
+        <div class="stat-value">$122,591</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <div class="stat-label">YoY Gap</div>
+        <div class="stat-value" style="color:var(--red);">−9.3%</div>
+      </div>
     </div>
-    <!-- Numpad -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
-      <button onclick="pinKey('1')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">1</button>
-      <button onclick="pinKey('2')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">2</button>
-      <button onclick="pinKey('3')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">3</button>
-      <button onclick="pinKey('4')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">4</button>
-      <button onclick="pinKey('5')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">5</button>
-      <button onclick="pinKey('6')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">6</button>
-      <button onclick="pinKey('7')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">7</button>
-      <button onclick="pinKey('8')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">8</button>
-      <button onclick="pinKey('9')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">9</button>
-      <button onclick="pinKey('del')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#64748B;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">⌫</button>
-      <button onclick="pinKey('0')" style="padding:16px 0;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#E2E8F0;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">0</button>
-      <div></div>
-    </div>
-    <div id="pinError" style="font-size:12px;color:#EF4444;margin-top:8px;height:16px;transition:opacity .3s;opacity:0;">Incorrect PIN. Try again.</div>
   </div>
-</div>
+  <nav class="nav">
+    <button class="nav-tab active" onclick="switchTab('focus',this)">⚡ Focus Mode</button>
+    <button class="nav-tab" onclick="switchTab('all',this)">📋 All Tasks</button>
+    <button class="nav-tab" onclick="switchTab('matrix',this)">⊞ Matrix</button>
+    <button class="nav-tab" onclick="switchTab('mindmap',this)">✦ Mind Map</button>
+  </nav>
+</header>
+
+<main class="main">
+
+  <section id="tab-focus" class="tab-pane active">
+    <div class="focus-intro">
+      <h2>Do These Now</h2>
+      <p id="focus-sub">Top critical actions requiring your attention today.</p>
+    </div>
+    <div class="focus-grid" id="focus-grid"></div>
+  </section>
+
+  <section id="tab-all" class="tab-pane">
+    <div class="filter-row" id="filter-row">
+      <button class="filter-chip active" onclick="filterTasks('all',this)">All (15)</button>
+      <button class="filter-chip" onclick="filterTasks('Apex Healthcare',this)">Apex Healthcare</button>
+      <button class="filter-chip" onclick="filterTasks('QLSS',this)">QLSS</button>
+      <button class="filter-chip" onclick="filterTasks('Maison Vitalis',this)">Maison Vitalis</button>
+      <button class="filter-chip" onclick="filterTasks('Admin',this)">Admin</button>
+    </div>
+    <div class="tasks-list" id="tasks-list"></div>
+  </section>
+
+  <section id="tab-matrix" class="tab-pane">
+    <div style="margin-bottom:16px;">
+      <div class="section-label">Eisenhower Priority Matrix</div>
+      <p style="font-size:13px;color:var(--text-secondary);">Click any task to jump to its full detail. Urgency × Importance.</p>
+    </div>
+    <div class="matrix-col-header">
+      <div class="matrix-col-label" style="color:var(--red);">🔴 Urgent</div>
+      <div class="matrix-col-label" style="color:var(--orange);">📅 Not Urgent</div>
+    </div>
+    <div class="matrix-grid">
+      <div class="matrix-quadrant do-now">
+        <div class="matrix-q-title">🔴 Do Now</div>
+        <div class="matrix-q-sub">Urgent + Important</div>
+        <div class="matrix-tasks" id="m-do-now"></div>
+      </div>
+      <div class="matrix-quadrant schedule">
+        <div class="matrix-q-title">🟠 Schedule</div>
+        <div class="matrix-q-sub">Important, Not Urgent</div>
+        <div class="matrix-tasks" id="m-schedule"></div>
+      </div>
+      <div class="matrix-quadrant delegate">
+        <div class="matrix-q-title">🔵 Delegate</div>
+        <div class="matrix-q-sub">Urgent, Lower Priority</div>
+        <div class="matrix-tasks" id="m-delegate"></div>
+      </div>
+      <div class="matrix-quadrant eliminate">
+        <div class="matrix-q-title">⚫ Eliminate</div>
+        <div class="matrix-q-sub">Not Urgent, Low Value</div>
+        <div class="matrix-tasks" id="m-eliminate"><div style="font-size:13px;color:#bbb;font-style:italic;">Nothing here — great.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-mindmap" class="tab-pane">
+    <div style="margin-bottom:16px;">
+      <div class="section-label">Apex OS — Task Mind Map</div>
+      <p style="font-size:13px;color:var(--text-secondary);">Hover or tap any task node to see details. 🔴 DO NOW · 🟠 SCHEDULE · 🔵 DELEGATE</p>
+    </div>
+    <div class="mindmap-container">
+      <svg id="mindmap-svg" viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Apex Healthcare Advanced Medicine Division &nbsp;·&nbsp; <span id="footer-ts"></span>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
 
 <script>
-(function(){
-  var PIN='2580',buf='';
-  // Check session storage — skip overlay if already unlocked this session
-  if(sessionStorage.getItem('apex_unlocked')==='1'){
-    document.getElementById('pinOverlay').style.display='none';
-    return;
-  }
-  // Keyboard support
-  document.addEventListener('keydown',function(e){
-    if(!document.getElementById('pinOverlay')||document.getElementById('pinOverlay').style.display==='none') return;
-    if(e.key>='0'&&e.key<='9') pinKey(e.key);
-    else if(e.key==='Backspace') pinKey('del');
-  });
-  window.pinKey=function(k){
-    var err=document.getElementById('pinError');
-    err.style.opacity='0';
-    if(k==='del'){buf=buf.slice(0,-1);}
-    else if(buf.length<4){buf+=k;}
-    updateDots();
-    if(buf.length===4){
-      if(buf===PIN){
-        sessionStorage.setItem('apex_unlocked','1');
-        var overlay=document.getElementById('pinOverlay');
-        overlay.style.transition='opacity .4s ease';
-        overlay.style.opacity='0';
-        setTimeout(function(){overlay.style.display='none';},420);
-      } else {
-        err.style.opacity='1';
-        // Shake & reset
-        var card=document.getElementById('pinOverlay').querySelector('div');
-        card.style.animation='pinShake .4s ease';
-        setTimeout(function(){card.style.animation='';buf='';updateDots();},420);
-      }
-    }
-  };
-  function updateDots(){
-    var dots=document.querySelectorAll('#pinDots .pd');
-    dots.forEach(function(d,i){
-      if(i<buf.length){
-        d.style.background='#00C9A7';d.style.borderColor='#00C9A7';
-        d.style.boxShadow='0 0 8px rgba(0,201,167,.5)';
-      } else {
-        d.style.background='transparent';d.style.borderColor='#334155';d.style.boxShadow='none';
-      }
-    });
-  }
-})();
-</script>
-<style>
-@keyframes pinShake{
-  0%,100%{transform:translateX(0)}
-  20%{transform:translateX(-8px)}
-  40%{transform:translateX(8px)}
-  60%{transform:translateX(-5px)}
-  80%{transform:translateX(5px)}
+const TASKS = [
+  { id:1, company:"Apex Healthcare", title:"BofA/SBA Delinquency Response", priority:"DO NOW", quadrant:"DO_NOW",
+    what:"Draft and send response letter to BofA SBA loan delinquency inquiry from Rosamelia O. Semino.",
+    how:["Pull the original BofA email from Ibrahim's inbox.",
+         "Draft a letter explaining cash timing — MTD $145K, receivables in pipeline.",
+         "Ibrahim reviews and signs the letter.",
+         "Send certified mail + email to Rosamelia O. Semino at BofA."],
+    why:"SBA loan default = credit risk, facility liens, reputational damage. Must be answered within 10 days. Failure to respond could trigger acceleration clause.",
+    owner:"Ibrahim" },
+
+  { id:2, company:"Apex Healthcare", title:"PCC API Next Gate", priority:"DO NOW", quadrant:"DO_NOW",
+    what:"Schedule App Validation meeting with PointClickCare to advance from Workflow Review PASSED to OAuth/mTLS.",
+    how:["Email PCC developer portal contact to request App Validation meeting.",
+         "Request meeting slot — cc Chris Jagernath.",
+         "Have Chris Jagernath join — he owns the technical integration.",
+         "Confirm 3-legged OAuth scope list before the call."],
+    why:"PCC API unlocks QIS rounding + CCM billing automation = $67–115K/month per facility in uncaptured revenue. One meeting advances the gate.",
+    owner:"Ibrahim + Chris Jagernath" },
+
+  { id:3, company:"Apex Healthcare", title:"Elkton Medical Director Contract", priority:"DO NOW", quadrant:"DO_NOW",
+    what:"Get St. Elizabeth Medical Director contract from Google Drive and adapt it for Elkton (Luis Navas-Migueloa).",
+    how:["Ask Stacey to locate the St. Elizabeth contract in Google Drive.",
+         "Stacey sends it to Ibrahim for review.",
+         "Adapt key terms: all-clinical-services scope, same forced-payout clause.",
+         "Return adapted contract to Luis Navas-Migueloa."],
+    why:"Elkton is consolidating physicians — Ibrahim is being brought IN. New revenue contract. Delay = risk of losing the slot to another physician.",
+    owner:"Stacey → Ibrahim" },
+
+  { id:4, company:"Apex Healthcare", title:"MTD Revenue Gap Analysis", priority:"SCHEDULE", quadrant:"SCHEDULE",
+    what:"Identify the root cause of the −9.3% YoY revenue gap ($145K vs $153K SPLY).",
+    how:["Pull A/R aging report from QuickBooks Online.",
+         "Identify top 3 delayed payers by dollar amount.",
+         "Check CCM billing capture rate per facility.",
+         "Compare prior month billing velocity to spot the slowdown point."],
+    why:"Gap is shrinking (was −42% in early June) but still negative. Closing it recovers $8–10K/month. Root cause prevents widening.",
+    owner:"Stacey + Bookkeeper" },
+
+  { id:5, company:"Apex Healthcare", title:"AccentCare DocuSign", priority:"DELEGATE", quadrant:"DELEGATE",
+    what:"Sign CTI + IPOC hospice clinical documents sent by AccentCare (Lewis, Rhona) — 2nd reminder received.",
+    how:["Check Gmail for DocuSign email from AccentCare dated June 14.",
+         "Review and sign each page of the CTI and IPOC documents.",
+         "Confirm receipt with AccentCare contact."],
+    why:"Clinical documentation compliance. Patient care coordination is blocked until signed. Second reminder — this is overdue.",
+    owner:"Ibrahim" },
+
+  { id:6, company:"QLSS", title:"HCSA Resubmission — Section B", priority:"DO NOW", quadrant:"DO_NOW",
+    what:"Irma must provide QLSS's dedicated phone number to Stacey so Section B of the HCSA application can be completed.",
+    how:["Text or call Irma Santos NOW — this is the single blocking item.",
+         "Get the QLSS direct phone number from Irma.",
+         "Stacey fills Section B fields with the number.",
+         "Submit packet to Glenda Roberts at staffing.agencies@maryland.gov by June 23."],
+    why:"June 30 is the HARD HCSA deadline. Miss it = full restart + months of delay + $0 QLSS revenue. QLSS is the primary lever against the Apex revenue gap.",
+    owner:"Ibrahim → Irma → Stacey" },
+
+  { id:7, company:"QLSS", title:"HCSA P&P Manual Rewrite", priority:"DO NOW", quadrant:"DO_NOW",
+    what:"Rewrite QLSS Policies & Procedures manual as an operational narrative, not compliance theater.",
+    how:["Stacey drafts Who/What/When/Where per job title for every procedure.",
+         "Ibrahim reviews for clinical accuracy and completeness.",
+         "Include: intake, scheduling, placement, supervision, complaint, documentation SOPs.",
+         "Submit with Section B packet by June 23."],
+    why:"Previous P&P was rejected as too generic. A genuine operational narrative survives HCSA inspection. Paper shell = survey liability + rejection.",
+    owner:"Stacey → Ibrahim review" },
+
+  { id:8, company:"QLSS", title:"Irma Santos Credentialing Packet", priority:"SCHEDULE", quadrant:"SCHEDULE",
+    what:"Review and respond to Irma Santos credentialing packet share request.",
+    how:["Check email labeled 'Reply Today' from Irma Santos.",
+         "Review the credentialing packet contents.",
+         "Respond with any missing items or confirmations needed."],
+    why:"Irma is the QLSS coordinator — her credentialing status affects HCSA submission. Delays cascade to the June 30 deadline.",
+    owner:"Ibrahim" },
+
+  { id:9, company:"Maison Vitalis", title:"Malpractice Coverage Confirmation", priority:"DO NOW", quadrant:"DO_NOW",
+    what:"Confirm malpractice policy covers IV infusion therapy AND peptide prescribing in Maryland.",
+    how:["Call current malpractice carrier — ask specifically about infusion + peptide scope in Maryland.",
+         "Request written confirmation of infusion + peptide scope.",
+         "If not covered, get quotes from NORCAL, The Doctors Company, Coverys.",
+         "Mahreen tracks status and follows up if no response in 24 hours."],
+    why:"No malpractice confirmation = no clinical launch. This is a hard legal gate. Every day of delay = zero Maison Vitalis revenue.",
+    owner:"Ibrahim (call) + Mahreen (track)" },
+
+  { id:10, company:"Maison Vitalis", title:"RN Scope Confirmation", priority:"DO NOW", quadrant:"DO_NOW",
+    what:"Confirm Maryland RN can administer IV therapy in a physician-office setting without additional certification.",
+    how:["Call Maryland Board of Nursing at 410-585-1900.",
+         "Ask: 'Can an RN administer IV infusions in a physician-owned outpatient clinic under physician supervision?'",
+         "Request written or email confirmation of the ruling.",
+         "Document and file the response."],
+    why:"RN scope defines the entire staffing model and clinical workflow. Wrong assumption = liability. 15-minute call removes a critical unknown.",
+    owner:"Mahreen or Ibrahim" },
+
+  { id:11, company:"Maison Vitalis", title:"Patient Consent Forms", priority:"SCHEDULE", quadrant:"SCHEDULE",
+    what:"Draft and finalize patient consent forms for IV therapy and peptide treatment.",
+    how:["Use template from SSRP conference contacts or request from malpractice carrier.",
+         "Have attorney review consent form language.",
+         "Load finalized forms into EMR intake workflow."],
+    why:"Required before first patient is seen. No consent form = no treatment. Attorney review protects against liability claims.",
+    owner:"Mahreen + Attorney" },
+
+  { id:12, company:"Maison Vitalis", title:"IV Suite / Infusion Vendor Lock", priority:"SCHEDULE", quadrant:"SCHEDULE",
+    what:"Select and contract with a compounding pharmacy for IV NAD+, infusion bags, and peptide supply.",
+    how:["Contact Empower Pharmacy, Belmar Pharmacy, and 5280 Pharmacy for 503B quotes.",
+         "Get formulary lists from each vendor.",
+         "Compare turnaround time + pricing across the three.",
+         "Execute physician onboarding agreement with selected vendor."],
+    why:"No pharmacy contract = no inventory = no revenue day 1. 503B compounding pharmacy is the only compliant source for IV compounds.",
+    owner:"Mahreen + Ibrahim" },
+
+  { id:13, company:"Maison Vitalis", title:"Maryland Business License", priority:"SCHEDULE", quadrant:"SCHEDULE",
+    what:"File Maryland business license and medical practice registration for Maison Vitalis.",
+    how:["File with SDAT at sdat.dat.maryland.gov.",
+         "Register medical practice with Maryland Board of Physicians.",
+         "Get EIN if not already assigned (IRS.gov online form, same-day)."],
+    why:"Required before billing any patient. Confirmed: NO OHCQ facility license needed (physician office class). Mahreen can handle.",
+    owner:"Mahreen" },
+
+  { id:14, company:"Maison Vitalis", title:"Stripe Descriptor Fix", priority:"SCHEDULE", quadrant:"SCHEDULE",
+    what:"Update Stripe payment statement descriptor — currently 'PHYSICIAN', flagged 3 times by Stripe.",
+    how:["Login to Stripe Dashboard.",
+         "Go to Settings → Business Settings → Statement Descriptor.",
+         "Change to 'MAISON VITALIS' or 'MV WELLNESS'.",
+         "Save and confirm the change."],
+    why:"Stripe has flagged this 3 times. Unresolved = payment processing risk / account hold. Five-minute fix.",
+    owner:"Ibrahim or Mahreen" },
+
+  { id:15, company:"Admin", title:"DigiCert OV Validation", priority:"SCHEDULE", quadrant:"SCHEDULE",
+    what:"Follow up with DigiCert (Ridhaa at validation@digicert.com) on Apex Healthcare LLC OV validation for X9 PKI cert.",
+    how:["Reply to Ridhaa with SDAT link confirming Apex Healthcare LLC registration.",
+         "Follow up with Justin Raisun on X9 PKI enablement — promised EOB June 17.",
+         "Monitor via DigiCert PKI monitor cron (already active)."],
+    why:"SSL/PKI cert required for mTLS PCC API production integration. Directly blocking the PCC production path.",
+    owner:"Ibrahim" }
+];
+
+const doneSet = new Set(JSON.parse(localStorage.getItem('apex-v3-done') || '[]'));
+let currentFilter = 'all';
+
+function co(c) {
+  if (c === 'Apex Healthcare') return 'apex';
+  if (c === 'QLSS') return 'qlss';
+  if (c === 'Maison Vitalis') return 'maison';
+  return 'admin';
 }
-</style>
+function pc(p) {
+  return { 'DO NOW':'do-now', 'SCHEDULE':'schedule', 'DELEGATE':'delegate', 'ELIMINATE':'eliminate' }[p] || 'eliminate';
+}
+function pe(p) {
+  return { 'DO NOW':'🔴', 'SCHEDULE':'🟠', 'DELEGATE':'🔵', 'ELIMINATE':'⚫' }[p] || '⚫';
+}
+function taskColor(p) {
+  return { 'DO NOW':'#d32f2f', 'SCHEDULE':'#e65100', 'DELEGATE':'#1565c0', 'ELIMINATE':'#546e7a' }[p] || '#546e7a';
+}
 
-<div class="relative z-10 mx-auto" style="max-width:1180px;padding:clamp(14px,3vw,28px) clamp(12px,3vw,26px) 90px">
+// ─ GREETING
+function setGreeting() {
+  const now = new Date();
+  const h = now.getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('greeting').textContent =
+    `${g}, Ibrahim — ${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  document.getElementById('footer-ts').textContent = `Last updated June 19, 2026 · V3`;
+  const cnt = TASKS.filter(t => t.quadrant === 'DO_NOW').length;
+  document.getElementById('focus-sub').textContent =
+    `${cnt} critical actions require your attention today, June 19.`;
+}
 
-  <!-- ───────── SECURITY BANNER ───────── -->
-  <div id="secBanner" class="banner-slide mb-5 rounded-2xl border px-5 py-4 flex items-start gap-4"
-       style="background:linear-gradient(135deg,rgba(239,68,68,.16),rgba(239,68,68,.06));border-color:rgba(239,68,68,.45);box-shadow:0 0 40px rgba(239,68,68,.12)">
-    <div class="text-2xl leading-none mt-[2px]">⚠️</div>
-    <div class="flex-1 min-w-0">
-      <div class="text-[10px] font-bold tracking-[.18em] uppercase text-crit mb-1">P0 · Security Alert</div>
-      <div class="text-[14.5px] font-semibold text-white leading-snug">
-        rizqui@apex-health.org — New Windows sign-in detected <span class="text-crit">11:38&nbsp;AM, Jun&nbsp;18</span> after two blocked attempts (Jun&nbsp;17–18).
+// ─ TAB SWITCHING
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'mindmap') renderMindMap();
+}
+
+// ─ FOCUS MODE
+function renderFocus() {
+  const focusTasks = TASKS.filter(t => t.quadrant === 'DO_NOW');
+  document.getElementById('focus-grid').innerHTML = focusTasks.map(t => `
+    <div class="focus-card ${doneSet.has(t.id) ? 'done' : ''}" id="fc-${t.id}">
+      <div class="focus-card-header">
+        <span class="company-pill ${co(t.company)}">${t.company}</span>
+        <span class="priority-badge do-now">🔴 DO NOW</span>
       </div>
-      <div class="text-[12.5px] text-slate-300 mt-1.5">Action required: change password &amp; revoke active sessions immediately.</div>
-    </div>
-    <button onclick="dismissBanner()" aria-label="Dismiss"
-      class="shrink-0 rounded-full w-7 h-7 flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition text-lg leading-none">×</button>
-  </div>
-
-  <!-- ───────── HEADER ───────── -->
-  <header class="mb-5">
-    <div class="flex items-center gap-3 flex-wrap mb-3">
-      <span class="live-dot"></span>
-      <span class="text-[10.5px] font-semibold tracking-[.16em] uppercase text-slate-500">Command Center v2 · Live</span>
-      <span class="px-2.5 py-1 rounded-full text-[10.5px] font-semibold tracking-wide"
-            style="background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.28);color:#D4AF37">Phoenix, AZ 🌵</span>
-      <span id="clock" class="ml-auto text-[11.5px] text-slate-300 font-medium tabular-nums"></span>
-    </div>
-    <h1 class="font-black tracking-tight leading-[1.05]"
-        style="font-size:clamp(26px,5.5vw,44px);background:linear-gradient(135deg,#F8FAFC,#94A3B8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">
-      Dr. Ibrahim Rizqui
-    </h1>
-    <p class="mt-2 text-[13px] text-slate-500 tracking-wide">Apex Healthcare · Clinical Network · CME · Personal — daily operating picture</p>
-  </header>
-
-  <!-- ───────── CALENDAR STRIP ───────── -->
-  <section class="glass p-4 mb-6">
-    <div class="flex items-center gap-2 mb-3">
-      <span class="text-[10.5px] font-bold tracking-[.16em] uppercase text-slate-500">This Week</span>
-      <span class="text-[10.5px] text-slate-600">Jun 18 – 22</span>
-    </div>
-    <div class="grid grid-cols-5 gap-2.5">
-      <div class="rounded-xl p-3 text-center" style="background:rgba(0,201,167,.12);border:1px solid rgba(0,201,167,.4)">
-        <div class="text-[10px] font-bold uppercase tracking-wide text-apex">Wed</div>
-        <div class="text-xl font-extrabold text-white mt-0.5">18</div>
-        <div class="text-[9.5px] font-semibold text-apex mt-1">Today</div>
-      </div>
-      <div class="rounded-xl p-3 text-center bg-white/[.03] border border-white/[.06]">
-        <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500">Thu</div>
-        <div class="text-xl font-extrabold text-slate-200 mt-0.5">19</div>
-        <div class="text-[9.5px] text-slate-600 mt-1">—</div>
-      </div>
-      <div class="rounded-xl p-3 text-center bg-white/[.03] border border-white/[.06]">
-        <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500">Fri</div>
-        <div class="text-xl font-extrabold text-slate-200 mt-0.5">20</div>
-        <div class="text-[9.5px] text-slate-600 mt-1">—</div>
-      </div>
-      <div class="rounded-xl p-3 text-center bg-white/[.03] border border-white/[.06]">
-        <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500">Sat</div>
-        <div class="text-xl font-extrabold text-slate-200 mt-0.5">21</div>
-        <div class="text-[9.5px] text-slate-600 mt-1">—</div>
-      </div>
-      <div class="rounded-xl p-3 text-center" style="background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.35)">
-        <div class="text-[10px] font-bold uppercase tracking-wide text-qv">Sun</div>
-        <div class="text-xl font-extrabold text-white mt-0.5">22</div>
-        <div class="text-[9.5px] font-semibold text-qv mt-1">✈ Flight</div>
-      </div>
-    </div>
-    <div class="mt-3 flex items-center gap-2.5 rounded-xl px-3.5 py-2.5"
-         style="background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.22)">
-      <span class="text-base">✈️</span>
-      <div class="text-[12.5px]">
-        <span class="font-semibold text-white">PHX → BWI</span>
-        <span class="text-slate-400"> · Sun Jun 21 · WN 1040 · 17:55 → 22:15 EDT</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ───────── GLOBAL PRIORITY FILTER ───────── -->
-  <section class="mb-6">
-    <div class="flex items-center gap-2 flex-wrap">
-      <span class="text-[10.5px] font-bold tracking-[.16em] uppercase text-slate-500 mr-1">Filter</span>
-      <button data-pri="all"      onclick="setFilter('all',this)"      class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#E2E8F0">All</button>
-      <button data-pri="critical" onclick="setFilter('critical',this)" class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#FCA5A5">● Critical</button>
-      <button data-pri="high"     onclick="setFilter('high',this)"     class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);color:#FDBA74">● High</button>
-      <button data-pri="medium"   onclick="setFilter('medium',this)"   class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.25);color:#FDE047">● Medium</button>
-      <button data-pri="low"      onclick="setFilter('low',this)"      class="pri-btn px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:#86EFAC">● Low</button>
-    </div>
-  </section>
-
-  <!-- ───────── COMPANY CARDS ───────── -->
-  <section class="grid gap-5 mb-10" style="grid-template-columns:repeat(auto-fit,minmax(330px,1fr))">
-
-    <!-- APEX HEALTHCARE -->
-    <article class="glass overflow-hidden" style="border-color:rgba(0,201,167,.2)">
-      <div style="height:3px;background:linear-gradient(90deg,#00C9A7,transparent)"></div>
-      <div class="p-5">
-        <div class="flex items-center gap-3 mb-1">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black"
-               style="background:linear-gradient(135deg,#00C9A7,#0d9488);color:#04211c">A</div>
-          <div>
-            <div class="text-[15px] font-bold text-white">Apex Healthcare</div>
-            <div class="text-[11px] text-slate-500">Clinical operations &amp; admin</div>
-          </div>
-          <span class="ml-auto text-[10px] font-bold px-2 py-1 rounded-full" style="background:rgba(239,68,68,.14);color:#FCA5A5">2 critical</span>
-        </div>
-
-        <button onclick="toggleEmails(this)" class="w-full flex items-center justify-between mt-4 mb-1 group">
-          <span class="text-[11px] font-bold tracking-[.12em] uppercase text-slate-400 group-hover:text-apex transition">Emails Needing Action · 7</span>
-          <span class="chev open text-slate-500 text-xs">▾</span>
+      <div class="focus-what">${t.what}</div>
+      <div class="focus-section-title">How to Start</div>
+      <ul class="how-list">${t.how.map((h,i)=>`<li data-num="${i+1}">${h}</li>`).join('')}</ul>
+      <div class="focus-section-title">Why It Matters</div>
+      <div class="why-box">${t.why}</div>
+      <div class="focus-footer">
+        <span class="owner-badge" style="font-size:12px;font-weight:600;color:var(--text-secondary);background:#f0f0f0;padding:4px 12px;border-radius:20px;">👤 ${t.owner}</span>
+        <button class="btn-done ${doneSet.has(t.id)?'marked':''}" onclick="markDone(${t.id},this)">
+          ${doneSet.has(t.id) ? '✓ Done' : 'Mark Done'}
         </button>
-        <div class="collapse-body open">
-          <ul class="space-y-2 pt-1">
-            <li class="email-row" data-pri="critical">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#EF4444"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">New Windows sign-in · rizqui@apex-health.org</div>
-                    <div class="text-[11px] text-slate-500">Google Security</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Change password &amp; revoke all active sessions now.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="email-row" data-pri="critical">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#EF4444"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">Nathan Coakley guardianship certificate</div>
-                    <div class="text-[11px] text-slate-500">Ian Herzberger · Complete Care</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Dr. Rizqui to complete &amp; return the certificate.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="email-row" data-pri="high">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#F97316"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">Invoice #2079 — $24,133 outstanding</div>
-                    <div class="text-[11px] text-slate-500">RKW Law Group</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ $148.50 due Jul 10; review outstanding balance.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="email-row" data-pri="high">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#F97316"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">Payroll reports + invoice · Jun 12 cycle</div>
-                    <div class="text-[11px] text-slate-500">Paychex</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Log in to review new reports &amp; invoice.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="email-row" data-pri="medium">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#EAB308"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">Palliative care census · 6/18</div>
-                    <div class="text-[11px] text-slate-500">AccentCare</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Route to clinical coordinator.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="email-row" data-pri="medium">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#EAB308"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">Medical Director relationship</div>
-                    <div class="text-[11px] text-slate-500">CommuniCare · Matt Wayne MD</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ Maintain; check last call attendance.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="email-row" data-pri="low">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#22C55E"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">Receipt $219.65 — paid</div>
-                    <div class="text-[11px] text-slate-500">RXNT</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#5eead4">→ File for records.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </article>
-
-    <!-- CLINICAL / NETWORK -->
-    <article class="glass overflow-hidden" style="border-color:rgba(168,85,247,.2)">
-      <div style="height:3px;background:linear-gradient(90deg,#A855F7,transparent)"></div>
-      <div class="p-5">
-        <div class="flex items-center gap-3 mb-1">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black"
-               style="background:linear-gradient(135deg,#A855F7,#7e22ce);color:#1e0a33">N</div>
-          <div>
-            <div class="text-[15px] font-bold text-white">Clinical / Network</div>
-            <div class="text-[11px] text-slate-500">Staff &amp; institutional ties</div>
-          </div>
-        </div>
-        <button onclick="toggleEmails(this)" class="w-full flex items-center justify-between mt-4 mb-1 group">
-          <span class="text-[11px] font-bold tracking-[.12em] uppercase text-slate-400 group-hover:text-qv transition">Emails Needing Action · 1</span>
-          <span class="chev open text-slate-500 text-xs">▾</span>
-        </button>
-        <div class="collapse-body open">
-          <ul class="space-y-2 pt-1">
-            <li class="email-row" data-pri="medium">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#EAB308"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">Triannual medical staff meeting</div>
-                    <div class="text-[11px] text-slate-500">Bernadette Jones · MedStar Harbor Hospital</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#d8b4fe">→ Confirm date &amp; RSVP.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </article>
-
-    <!-- CME / PROFESSIONAL -->
-    <article class="glass overflow-hidden" style="border-color:rgba(249,115,22,.2)">
-      <div style="height:3px;background:linear-gradient(90deg,#F97316,transparent)"></div>
-      <div class="p-5">
-        <div class="flex items-center gap-3 mb-1">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black"
-               style="background:linear-gradient(135deg,#F97316,#c2410c);color:#2a1206">C</div>
-          <div>
-            <div class="text-[15px] font-bold text-white">CME / Professional</div>
-            <div class="text-[11px] text-slate-500">Education &amp; development</div>
-          </div>
-          <span class="ml-auto text-[10px] font-bold px-2 py-1 rounded-full" style="background:rgba(249,115,22,.14);color:#FDBA74">tonight</span>
-        </div>
-        <button onclick="toggleEmails(this)" class="w-full flex items-center justify-between mt-4 mb-1 group">
-          <span class="text-[11px] font-bold tracking-[.12em] uppercase text-slate-400 group-hover:text-high transition">Emails Needing Action · 1</span>
-          <span class="chev open text-slate-500 text-xs">▾</span>
-        </button>
-        <div class="collapse-body open">
-          <ul class="space-y-2 pt-1">
-            <li class="email-row" data-pri="high">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#F97316"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">“Ask the Professor” webinar — TONIGHT</div>
-                    <div class="text-[11px] text-slate-500">A4M · Jun 18</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#fdba74">→ Check email for join link before start.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </article>
-
-    <!-- PERSONAL / TECH SECURITY -->
-    <article class="glass overflow-hidden" style="border-color:rgba(34,197,94,.2)">
-      <div style="height:3px;background:linear-gradient(90deg,#22C55E,transparent)"></div>
-      <div class="p-5">
-        <div class="flex items-center gap-3 mb-1">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black"
-               style="background:linear-gradient(135deg,#22C55E,#15803d);color:#052012">P</div>
-          <div>
-            <div class="text-[15px] font-bold text-white">Personal / Tech Security</div>
-            <div class="text-[11px] text-slate-500">Accounts &amp; access</div>
-          </div>
-        </div>
-        <button onclick="toggleEmails(this)" class="w-full flex items-center justify-between mt-4 mb-1 group">
-          <span class="text-[11px] font-bold tracking-[.12em] uppercase text-slate-400 group-hover:text-low transition">Emails Needing Action · 1</span>
-          <span class="chev open text-slate-500 text-xs">▾</span>
-        </button>
-        <div class="collapse-body open">
-          <ul class="space-y-2 pt-1">
-            <li class="email-row" data-pri="medium">
-              <div class="rounded-xl bg-white/[.03] border border-white/[.06] p-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="pri-dot mt-1.5" style="background:#EAB308"></span>
-                  <div class="min-w-0">
-                    <div class="text-[12.5px] font-semibold text-white">New device login today</div>
-                    <div class="text-[11px] text-slate-500">Notion</div>
-                    <div class="text-[11.5px] mt-1.5" style="color:#86efac">→ Verify in account settings.</div>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </article>
-
-  </section>
-
-  <!-- ───────── PCC TRACK (Notion) ───────── -->
-  <section class="glass p-5 mb-10">
-    <div class="flex items-center gap-2 mb-4">
-      <span class="text-[11px] font-bold tracking-[.14em] uppercase text-slate-400">PCC Integration Track</span>
-      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(234,179,8,.12);color:#FDE047">4 open · P2</span>
-    </div>
-    <div class="grid gap-2.5" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
-      <div class="email-row rounded-xl bg-white/[.03] border border-white/[.06] p-3.5" data-pri="medium">
-        <div class="flex items-center gap-2 mb-1"><span class="pri-dot" style="background:#EAB308"></span><span class="text-[12.5px] font-semibold text-white">API authorization pending</span></div>
-        <div class="text-[11.5px] text-slate-500">Blocking QIS tech integration.</div>
-      </div>
-      <div class="email-row rounded-xl bg-white/[.03] border border-white/[.06] p-3.5" data-pri="medium">
-        <div class="flex items-center gap-2 mb-1"><span class="pri-dot" style="background:#EAB308"></span><span class="text-[12.5px] font-semibold text-white">Workflow-review meeting</span></div>
-        <div class="text-[11.5px] text-slate-500">Book for application 800711.</div>
-      </div>
-      <div class="email-row rounded-xl bg-white/[.03] border border-white/[.06] p-3.5" data-pri="medium">
-        <div class="flex items-center gap-2 mb-1"><span class="pri-dot" style="background:#EAB308"></span><span class="text-[12.5px] font-semibold text-white">Sandbox mTLS certificate</span></div>
-        <div class="text-[11.5px] text-slate-500">Client certificate blocker.</div>
-      </div>
-      <div class="email-row rounded-xl bg-white/[.03] border border-white/[.06] p-3.5" data-pri="medium">
-        <div class="flex items-center gap-2 mb-1"><span class="pri-dot" style="background:#EAB308"></span><span class="text-[12.5px] font-semibold text-white">App validation meeting</span></div>
-        <div class="text-[11.5px] text-slate-500">Schedule first validation session.</div>
       </div>
     </div>
-  </section>
+  `).join('');
+}
 
-  <!-- ───────── ADVISORY COUNCIL ───────── -->
-  <section>
-    <div class="text-center mb-6">
-      <div class="text-[10.5px] font-bold tracking-[.2em] uppercase text-slate-500 mb-2">Strategic Counsel</div>
-      <h2 class="font-black tracking-tight" style="font-size:clamp(22px,4vw,34px);background:linear-gradient(135deg,#D4AF37,#FDE9A8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">
-        Advisory Council
-      </h2>
-      <p class="text-[12.5px] text-slate-500 mt-2">Independent Board Analysis · June 18, 2026</p>
-    </div>
-
-    <!-- CHAIRMAN — full width -->
-    <div class="council-card glass mb-5 p-6 relative overflow-hidden" style="border-color:rgba(212,175,55,.55);box-shadow:0 0 48px rgba(212,175,55,.18),inset 0 0 60px rgba(212,175,55,.04)">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#D4AF37,#FDE9A8,rgba(212,175,55,.3))"></div>
-      <div class="flex items-center gap-3 mb-4 flex-wrap">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style="background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.35)">⚖️</div>
-        <div>
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <div class="text-[17px] font-extrabold text-white leading-tight">Marcus Aurelius</div>
-            <span class="text-[9.5px] font-black px-2.5 py-0.5 rounded-full tracking-widest" style="background:rgba(212,175,55,.22);color:#D4AF37;border:1px solid rgba(212,175,55,.4)">CHAIRMAN</span>
-          </div>
-          <div class="text-[11.5px] text-slate-400 mt-0.5">Delivers the final unified recommendation · Stoic · Measured · Wise</div>
-        </div>
-      </div>
-      <div class="rounded-xl p-4" style="background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2)">
-        <div class="text-[10px] font-bold tracking-[.15em] uppercase mb-2" style="color:rgba(212,175,55,.75)">Chairman’s Verdict</div>
-        <p class="text-[13px] text-slate-200 leading-relaxed">"Six items demand execution before Phoenix departure. The HCSA license forward to Stacey is the single action that changes QLSS from zero revenue to active. The BofA reply is the single action that protects your largest credit relationship. Do not leave tomorrow without both done. All else is noise."</p>
-      </div>
-    </div>
-
-    <!-- 6 BOARD MEMBERS — 2-column grid -->
-    <div class="grid gap-4 mb-5" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
-
-      <!-- Cosimo de’ Medici — CFO -->
-      <div class="council-card glass p-4" style="border-color:rgba(16,185,129,.3)">
-        <div class="flex items-center gap-3 mb-2.5">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(16,185,129,.18);border:1px solid rgba(16,185,129,.28)">💰</div>
-          <div>
-            <div class="text-[13.5px] font-bold text-white leading-tight">Cosimo de’ Medici</div>
-            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(16,185,129,.12);color:#10B981">CFO · Capital Allocation</div>
-          </div>
-        </div>
-        <p class="text-[12px] text-slate-300 leading-relaxed">"Revenue is −42.8% MTD. Stripe frozen since November — that is 7 months of blocked collections. Fix it in 2 minutes. QLSS has $24K+ in legal fees with zero revenue — the HCSA license is the only fix that changes the math. Elkton is 21-day upside. BofA silence = credit action = you cannot afford that right now."</p>
-      </div>
-
-      <!-- Hippocrates — Medical Director -->
-      <div class="council-card glass p-4" style="border-color:rgba(99,102,241,.3)">
-        <div class="flex items-center gap-3 mb-2.5">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(99,102,241,.18);border:1px solid rgba(99,102,241,.28)">⚕️</div>
-          <div>
-            <div class="text-[13.5px] font-bold text-white leading-tight">Hippocrates</div>
-            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(99,102,241,.12);color:#6366F1">Medical Director · Clinical Safety</div>
-          </div>
-        </div>
-        <p class="text-[12px] text-slate-300 leading-relaxed">"Three providers at 500+ visits/month is a payer audit trigger. Do not approve Dr. Majdi or Althea’s time-off until you know whether this is a documentation issue or actual over-billing. CDS physical certificate gap creates a prescribing defensibility risk. The Geriscript therapeutic interchange requires physician acknowledgment — delegate to clinical team today, do not let it lapse."</p>
-      </div>
-
-      <!-- Subutai — COO -->
-      <div class="council-card glass p-4" style="border-color:rgba(249,115,22,.3)">
-        <div class="flex items-center gap-3 mb-2.5">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(249,115,22,.18);border:1px solid rgba(249,115,22,.28)">⚔️</div>
-          <div>
-            <div class="text-[13.5px] font-bold text-white leading-tight">Subutai</div>
-            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(249,115,22,.12);color:#F97316">COO · Logistics &amp; Execution</div>
-          </div>
-        </div>
-        <p class="text-[12px] text-slate-300 leading-relaxed">"The fax cron loop fired 40+ times overnight — kill it before Phoenix or it will bleed Twilio budget all weekend with no one watching. HCSA goes to Stacey with a deadline. EB-3 letters go to Stacey for prep. Elkton outreach needs an owner by end of day. You cannot execute everything — assign named owners for every item that is not a 5-minute personal action."</p>
-      </div>
-
-      <!-- Sun Tzu — Strategy -->
-      <div class="council-card glass p-4" style="border-color:rgba(6,182,212,.3)">
-        <div class="flex items-center gap-3 mb-2.5">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(6,182,212,.18);border:1px solid rgba(6,182,212,.28)">🗡️</div>
-          <div>
-            <div class="text-[13.5px] font-bold text-white leading-tight">Sun Tzu</div>
-            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(6,182,212,.12);color:#06B6D4">Strategy · Asymmetric Advantage</div>
-          </div>
-        </div>
-        <p class="text-[12px] text-slate-300 leading-relaxed">"Elkton is not a crisis — it is terrain. A competing group loses their position in 21 days. You have the infrastructure and the credibility to step in before anyone else moves. The optimal move is to contact Luis today with one paragraph: who you are, what Apex covers, request a call. The window is narrow. Timing is the advantage."</p>
-      </div>
-
-      <!-- Cleopatra — Business Development -->
-      <div class="council-card glass p-4" style="border-color:rgba(236,72,153,.3)">
-        <div class="flex items-center gap-3 mb-2.5">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(236,72,153,.18);border:1px solid rgba(236,72,153,.28)">👑</div>
-          <div>
-            <div class="text-[13.5px] font-bold text-white leading-tight">Cleopatra</div>
-            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(236,72,153,.12);color:#EC4899">Business Dev · Alliances</div>
-          </div>
-        </div>
-        <p class="text-[12px] text-slate-300 leading-relaxed">"BofA’s Rosamelia is not a threat — she is an open door. A 5-minute professional reply preserves the relationship and signals you are in control. Xhalo360 is waiting on you for the Discovery call — they are ready to implement. Move fast on both: relationships wait only so long before they find someone else."</p>
-      </div>
-
-      <!-- Julius Caesar — Action -->
-      <div class="council-card glass p-4" style="border-color:rgba(139,92,246,.3)">
-        <div class="flex items-center gap-3 mb-2.5">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:rgba(139,92,246,.18);border:1px solid rgba(139,92,246,.28)">🏛️</div>
-          <div>
-            <div class="text-[13.5px] font-bold text-white leading-tight">Julius Caesar</div>
-            <div class="inline-block mt-0.5 text-[9.5px] font-semibold px-1.5 py-0.5 rounded" style="background:rgba(139,92,246,.12);color:#8B5CF6">Action · Bold Decisions</div>
-          </div>
-        </div>
-        <p class="text-[12px] text-slate-300 leading-relaxed">"You have 6 critical items and 18 hours before Phoenix. Stop analyzing. Veni: open email. Vidi: forward HCSA to Stacey, reply to BofA, fix Stripe, sign DocuSign, sign CliniSign, email Luis at Elkton. Vici: board on Phoenix. Every minute spent not doing those 6 things is a minute spent losing ground."</p>
-      </div>
-
-    </div>
-
-    <!-- UNIFIED BOARD RECOMMENDATION -->
-    <div class="glass p-5" style="border-color:rgba(212,175,55,.45);background:linear-gradient(135deg,rgba(212,175,55,.1),rgba(212,175,55,.03));box-shadow:0 0 40px rgba(212,175,55,.12)">
-      <div class="flex items-center gap-3 mb-3 flex-wrap">
-        <span class="text-xl">⚖️</span>
-        <span class="text-[11.5px] font-black tracking-[.14em] uppercase" style="color:#D4AF37">Unified Board Recommendation · Marcus Aurelius, Chairman</span>
-      </div>
-      <p class="text-[13.5px] text-slate-100 leading-relaxed font-medium">
-        "Execute the HCSA forward and BofA reply before 9pm tonight. Delegate Elkton outreach and the EB-3 letters to Stacey. Kill the fax cron loop. Leave for Phoenix clean — not with 6 open Tier-1 items burning behind you."
-      </p>
-    </div>
-  </section>
-
-  <footer class="mt-12 text-center text-[10.5px] text-slate-600">
-    Apex Healthcare · Advanced Medicine Division — internal operating picture · generated Jun 18, 2026
-  </footer>
-
-</div>
-
-<script>
-  function tick(){
-    const o={weekday:'short',hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'America/New_York'};
-    document.getElementById('clock').textContent=new Date().toLocaleString('en-US',o)+' EDT';
+function markDone(id, btn) {
+  if (doneSet.has(id)) {
+    doneSet.delete(id);
+    btn.textContent = 'Mark Done';
+    btn.classList.remove('marked');
+    document.getElementById('fc-'+id).classList.remove('done');
+  } else {
+    doneSet.add(id);
+    btn.textContent = '✓ Done';
+    btn.classList.add('marked');
+    document.getElementById('fc-'+id).classList.add('done');
   }
-  tick(); setInterval(tick,1000);
+  localStorage.setItem('apex-v3-done', JSON.stringify([...doneSet]));
+}
 
-  function dismissBanner(){ document.getElementById('secBanner').classList.add('dismissed'); }
+// ─ ALL TASKS
+function filterTasks(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderAllTasks();
+}
+function renderAllTasks() {
+  const filtered = currentFilter === 'all' ? TASKS : TASKS.filter(t => t.company === currentFilter);
+  const el = document.getElementById('tasks-list');
+  if (!filtered.length) { el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-secondary);">No tasks</div>`; return; }
+  el.innerHTML = filtered.map(t => `
+    <div class="task-card" id="tc-${t.id}">
+      <div class="task-header" onclick="toggleTask(${t.id})">
+        <span class="company-pill ${co(t.company)}" style="font-size:10px;padding:2px 8px;">${t.company}</span>
+        <span class="priority-badge ${pc(t.priority)}" style="font-size:10px;padding:2px 8px;">${pe(t.priority)} ${t.priority}</span>
+        <span class="task-title-text">${t.title}</span>
+        <span class="task-chevron">▼</span>
+      </div>
+      <div class="task-body">
+        <div style="font-size:14px;font-weight:600;margin-bottom:12px;line-height:1.4;">${t.what}</div>
+        <div class="focus-section-title">How to Start</div>
+        <ul class="how-list" style="margin-bottom:12px;">${t.how.map((h,i)=>`<li data-num="${i+1}">${h}</li>`).join('')}</ul>
+        <div class="focus-section-title">Why It Matters</div>
+        <div class="why-box">${t.why}</div>
+        <div class="focus-footer">
+          <span style="font-size:12px;font-weight:600;color:var(--text-secondary);background:#f0f0f0;padding:4px 12px;border-radius:20px;">👤 ${t.owner}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleTask(id) {
+  document.getElementById('tc-'+id).classList.toggle('expanded');
+}
 
-  function toggleEmails(btn){
-    const body=btn.nextElementSibling;
-    const chev=btn.querySelector('.chev');
-    body.classList.toggle('open'); chev.classList.toggle('open');
+// ─ MATRIX
+function renderMatrix() {
+  const qs = { DO_NOW:[], SCHEDULE:[], DELEGATE:[], ELIMINATE:[] };
+  TASKS.forEach(t => { if (qs[t.quadrant]) qs[t.quadrant].push(t); });
+  function pills(arr, elId) {
+    const el = document.getElementById(elId);
+    if (!arr.length) { el.innerHTML = `<div style="font-size:12px;color:#bbb;font-style:italic;">None assigned</div>`; return; }
+    el.innerHTML = arr.map(t => `
+      <div class="matrix-pill" onclick="jumpToTask(${t.id})">
+        <span class="matrix-pill-co">${t.company.split(' ')[0]}</span>
+        <span>${t.title}</span>
+      </div>
+    `).join('');
+  }
+  pills(qs.DO_NOW, 'm-do-now');
+  pills(qs.SCHEDULE, 'm-schedule');
+  pills(qs.DELEGATE, 'm-delegate');
+}
+function jumpToTask(id) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-all').classList.add('active');
+  document.querySelectorAll('.nav-tab')[1].classList.add('active');
+  currentFilter = 'all';
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.filter-chip')[0].classList.add('active');
+  renderAllTasks();
+  setTimeout(() => {
+    const el = document.getElementById('tc-'+id);
+    if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); el.classList.add('expanded'); }
+  }, 80);
+}
+
+// ─ MIND MAP
+let mindMapDone = false;
+function renderMindMap() {
+  if (mindMapDone) return;
+  mindMapDone = true;
+  const svg = document.getElementById('mindmap-svg');
+  const W = 900, H = 620, cx = W/2, cy = H/2;
+
+  const branches = [
+    { label:'Apex\nHealthcare', color:'#1565c0', angle:-130, tasks: TASKS.filter(t=>t.company==='Apex Healthcare') },
+    { label:'QLSS', color:'#c62828', angle:-50, tasks: TASKS.filter(t=>t.company==='QLSS') },
+    { label:'Maison\nVitalis', color:'#2e7d32', angle:50, tasks: TASKS.filter(t=>t.company==='Maison Vitalis') },
+    { label:'Admin', color:'#546e7a', angle:130, tasks: TASKS.filter(t=>t.company==='Admin') }
+  ];
+
+  function toXY(angleDeg, r) {
+    const rad = angleDeg * Math.PI / 180;
+    return [cx + r*Math.cos(rad), cy + r*Math.sin(rad)];
   }
 
-  function setFilter(pri,el){
-    document.querySelectorAll('.pri-btn').forEach(b=>{b.style.outline='none';b.style.opacity='.7'});
-    el.style.opacity='1'; el.style.outline='1px solid rgba(255,255,255,.35)';
-    document.querySelectorAll('.email-row').forEach(row=>{
-      const p=row.getAttribute('data-pri');
-      const show=(pri==='all')||(p===pri);
-      row.classList.toggle('filtered-out',!show);
+  let out = `<defs>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="rgba(0,0,0,0.18)"/>
+    </filter>
+    <filter id="sh2" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="rgba(0,0,0,0.12)"/>
+    </filter>
+  </defs>`;
+
+  // Center node
+  out += `<circle cx="${cx}" cy="${cy}" r="46" fill="#1a1a1a" filter="url(#sh)"/>`;
+  out += `<text x="${cx}" y="${cy-7}" text-anchor="middle" fill="#fff" font-size="13" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,sans-serif">Apex</text>`;
+  out += `<text x="${cy}" y="${cy+9}" x="${cx}" text-anchor="middle" fill="#fff" font-size="13" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,sans-serif">OS</text>`;
+
+  branches.forEach(b => {
+    const [bx, by] = toXY(b.angle, 155);
+    out += `<line x1="${cx}" y1="${cy}" x2="${bx}" y2="${by}" stroke="${b.color}" stroke-width="2.5" stroke-opacity="0.4"/>`;
+    out += `<circle cx="${bx}" cy="${by}" r="32" fill="${b.color}" fill-opacity="0.1" stroke="${b.color}" stroke-width="2" filter="url(#sh2)"/>`;
+    const lblLines = b.label.split('\n');
+    if (lblLines.length === 1) {
+      out += `<text x="${bx}" y="${by+5}" text-anchor="middle" fill="${b.color}" font-size="11" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${lblLines[0]}</text>`;
+    } else {
+      out += `<text x="${bx}" y="${by-6}" text-anchor="middle" fill="${b.color}" font-size="11" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${lblLines[0]}</text>`;
+      out += `<text x="${bx}" y="${by+8}" text-anchor="middle" fill="${b.color}" font-size="11" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${lblLines[1]}</text>`;
+    }
+
+    // Task nodes spread around branch
+    const n = b.tasks.length;
+    const TASK_R = 250;
+    b.tasks.forEach((t, i) => {
+      const spreadAngle = n > 1 ? b.angle + (i - (n-1)/2) * (55/Math.max(n-1,1)) : b.angle;
+      const [tx, ty] = toXY(spreadAngle, TASK_R);
+      const tc = taskColor(t.priority);
+      const lbl = t.title.length > 16 ? t.title.slice(0,15)+'…' : t.title;
+
+      out += `<line x1="${bx}" y1="${by}" x2="${tx}" y2="${ty}" stroke="${b.color}" stroke-width="1.5" stroke-opacity="0.25" stroke-dasharray="5 3"/>`;
+
+      out += `<g class="task-node" style="cursor:pointer;"
+        onmouseenter="showTip(event,${t.id})"
+        onmouseleave="hideTip()"
+        onclick="hideTip();jumpToTask(${t.id})">
+        <circle cx="${tx}" cy="${ty}" r="22" fill="${tc}" fill-opacity="0.12" stroke="${tc}" stroke-width="1.5" filter="url(#sh2)"/>
+        <text x="${tx}" y="${ty+4}" text-anchor="middle" fill="${tc}" font-size="9" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${lbl}</text>
+      </g>`;
     });
-  }
-  setFilter('all',document.querySelector('.pri-btn[data-pri="all"]'));
+  });
+
+  svg.innerHTML = out;
+}
+
+// ─ TOOLTIP
+const tip = document.getElementById('tooltip');
+let tipTimer;
+function showTip(e, id) {
+  clearTimeout(tipTimer);
+  const t = TASKS.find(x => x.id === id);
+  if (!t) return;
+  tip.innerHTML = `<strong>${pe(t.priority)} ${t.title}</strong><div class="tip-what">${t.what}</div><div class="tip-meta">👤 ${t.owner}</div>`;
+  tip.classList.add('visible');
+  moveTip(e);
+}
+function moveTip(e) {
+  let x = e.clientX + 16, y = e.clientY + 14;
+  if (x + 295 > window.innerWidth) x = e.clientX - 295;
+  if (y + 130 > window.innerHeight) y = e.clientY - 130;
+  tip.style.left = x+'px';
+  tip.style.top = y+'px';
+}
+function hideTip() { tipTimer = setTimeout(() => tip.classList.remove('visible'), 200); }
+document.addEventListener('mousemove', e => { if (tip.classList.contains('visible')) moveTip(e); });
+document.addEventListener('click', e => { if (!e.target.closest('.task-node')) tip.classList.remove('visible'); });
+
+// ─ INIT
+setGreeting();
+renderFocus();
+renderAllTasks();
+renderMatrix();
 </script>
 </body>
 </html>

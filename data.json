@@ -1,0 +1,246 @@
+{
+  "meta": {
+    "title": "Apex Command Center",
+    "owner": "Dr. Ibrahim Rizqui",
+    "mtd_revenue": 145203,
+    "cash": 122591,
+    "last_updated": "2026-06-19"
+  },
+  "tasks": [
+    {
+      "id": 1,
+      "company": "Apex Healthcare",
+      "title": "BofA/SBA Delinquency Response",
+      "priority": "DO NOW",
+      "what": "Draft and send response letter to BofA SBA loan delinquency inquiry from Rosamelia O. Semino.",
+      "how": [
+        "Pull the original BofA email from Ibrahim's inbox.",
+        "Draft a letter explaining cash timing — MTD $145K, receivables in pipeline.",
+        "Ibrahim reviews and signs the letter.",
+        "Send certified mail + email to Rosamelia O. Semino at BofA."
+      ],
+      "why": "SBA loan default = credit risk, facility liens, reputational damage. Must be answered within 10 days of inquiry. Failure to respond could trigger acceleration clause.",
+      "owner": "Ibrahim",
+      "quadrant": "DO_NOW"
+    },
+    {
+      "id": 2,
+      "company": "Apex Healthcare",
+      "title": "PCC API Next Gate",
+      "priority": "DO NOW",
+      "what": "Schedule App Validation meeting with PointClickCare to advance from Workflow Review PASSED to OAuth/mTLS.",
+      "how": [
+        "Email PCC developer portal contact to request App Validation meeting.",
+        "Request App Validation meeting slot.",
+        "Have Chris Jagernath join — he owns the technical integration.",
+        "Confirm 3-legged OAuth scope list before the call."
+      ],
+      "why": "PCC API = QIS rounding system + CCM billing automation. Worth $67–115K/month per facility in uncaptured revenue. One meeting unlocks the next gate.",
+      "owner": "Ibrahim + Chris Jagernath",
+      "quadrant": "DO_NOW"
+    },
+    {
+      "id": 3,
+      "company": "Apex Healthcare",
+      "title": "Elkton Medical Director Contract",
+      "priority": "DO NOW",
+      "what": "Get St. Elizabeth Medical Director contract from Google Drive and adapt it for Elkton (Luis Navas-Migueloa).",
+      "how": [
+        "Ask Stacey to locate the St. Elizabeth contract in Google Drive.",
+        "Stacey sends it to Ibrahim for review.",
+        "Adapt key terms: all-clinical-services scope, same forced-payout clause.",
+        "Return adapted contract to Luis Navas-Migueloa."
+      ],
+      "why": "Elkton is consolidating physicians — Ibrahim is being brought IN. This is a new revenue contract, not a termination. Delay = risk of losing the slot.",
+      "owner": "Stacey → Ibrahim",
+      "quadrant": "DO_NOW"
+    },
+    {
+      "id": 4,
+      "company": "Apex Healthcare",
+      "title": "MTD Revenue Gap Analysis",
+      "priority": "SCHEDULE",
+      "what": "Identify the root cause of the −9.3% YoY revenue gap ($145K vs $153K SPLY).",
+      "how": [
+        "Pull A/R aging report from QuickBooks Online.",
+        "Identify top 3 delayed payers by dollar amount.",
+        "Check CCM billing capture rate per facility.",
+        "Compare prior month billing velocity to spot the slowdown point."
+      ],
+      "why": "Gap is shrinking (was −42% in early June) but still negative. Closing it recovers $8–10K/month. Root cause analysis prevents it from widening again.",
+      "owner": "Stacey + Bookkeeper",
+      "quadrant": "SCHEDULE"
+    },
+    {
+      "id": 5,
+      "company": "Apex Healthcare",
+      "title": "AccentCare DocuSign",
+      "priority": "DELEGATE",
+      "what": "Sign CTI + IPOC hospice clinical documents sent by AccentCare (Lewis, Rhona) — 2nd reminder received.",
+      "how": [
+        "Check Ibrahim's Gmail for DocuSign email from AccentCare dated June 14.",
+        "Review and sign each page of the CTI and IPOC documents.",
+        "Confirm receipt with AccentCare contact."
+      ],
+      "why": "Clinical documentation compliance. Patient care coordination is blocked until signed. Second reminder received — this is overdue.",
+      "owner": "Ibrahim",
+      "quadrant": "DELEGATE"
+    },
+    {
+      "id": 6,
+      "company": "QLSS",
+      "title": "HCSA Resubmission — Section B",
+      "priority": "DO NOW",
+      "what": "Irma must provide QLSS's dedicated phone number to Stacey so Section B of the HCSA application can be completed.",
+      "how": [
+        "Text or call Irma Santos NOW — this is the single blocking item.",
+        "Get the QLSS direct phone number from Irma.",
+        "Stacey fills Section B fields with the number.",
+        "Submit resubmission packet to Glenda Roberts at staffing.agencies@maryland.gov by June 23 (1-week buffer before June 30 hard deadline)."
+      ],
+      "why": "June 30 is the HARD HCSA deadline. Miss it = full restart + months of delay + $0 QLSS revenue continues. QLSS is the primary lever against the Apex revenue gap.",
+      "owner": "Ibrahim → Irma → Stacey",
+      "quadrant": "DO_NOW"
+    },
+    {
+      "id": 7,
+      "company": "QLSS",
+      "title": "HCSA P&P Manual Rewrite",
+      "priority": "DO NOW",
+      "what": "Rewrite QLSS Policies & Procedures manual as an operational narrative (not compliance theater).",
+      "how": [
+        "Stacey drafts Who/What/When/Where per job title for every procedure.",
+        "Ibrahim reviews for clinical accuracy and completeness.",
+        "Include: intake, scheduling, placement, supervision, complaint, documentation SOPs.",
+        "Submit with Section B by June 23."
+      ],
+      "why": "Previous P&P was rejected as too generic. A genuine operational narrative survives HCSA inspection. A paper shell creates survey liability later and risks rejection again.",
+      "owner": "Stacey → Ibrahim review",
+      "quadrant": "DO_NOW"
+    },
+    {
+      "id": 8,
+      "company": "QLSS",
+      "title": "Irma Santos Credentialing Packet",
+      "priority": "SCHEDULE",
+      "what": "Review and respond to Irma Santos credentialing packet share request.",
+      "how": [
+        "Check email labeled 'Reply Today' from Irma Santos.",
+        "Review the credentialing packet contents.",
+        "Respond with any missing items or confirmations needed."
+      ],
+      "why": "Irma is the QLSS coordinator — her credentialing status affects HCSA submission and staffing operations. Delays here cascade to the June 30 deadline.",
+      "owner": "Ibrahim",
+      "quadrant": "SCHEDULE"
+    },
+    {
+      "id": 9,
+      "company": "Maison Vitalis",
+      "title": "Malpractice Coverage Confirmation",
+      "priority": "DO NOW",
+      "what": "Confirm malpractice policy covers IV infusion therapy AND peptide prescribing in Maryland.",
+      "how": [
+        "Call current malpractice carrier — ask specifically about infusion + peptide scope in Maryland.",
+        "Request written confirmation of infusion + peptide scope in writing (email OK).",
+        "If not covered, get quotes from NORCAL, The Doctors Company, Coverys.",
+        "Mahreen tracks status and follows up if no response in 24 hours."
+      ],
+      "why": "No malpractice confirmation = no clinical launch. This is a hard legal gate. Every day of delay = day of zero Maison Vitalis revenue.",
+      "owner": "Ibrahim (call) + Mahreen (track)",
+      "quadrant": "DO_NOW"
+    },
+    {
+      "id": 10,
+      "company": "Maison Vitalis",
+      "title": "RN Scope Confirmation",
+      "priority": "DO NOW",
+      "what": "Confirm Maryland RN can administer IV therapy in a physician-office setting without additional certification.",
+      "how": [
+        "Call Maryland Board of Nursing at 410-585-1900.",
+        "Ask specifically: 'Can an RN administer IV infusions in a physician-owned outpatient clinic under physician supervision?'",
+        "Request written or email confirmation of the ruling.",
+        "Document and file the response."
+      ],
+      "why": "RN scope defines the entire staffing model and clinical workflow. A wrong assumption = liability. This call takes 15 minutes and removes a major unknown.",
+      "owner": "Mahreen or Ibrahim",
+      "quadrant": "DO_NOW"
+    },
+    {
+      "id": 11,
+      "company": "Maison Vitalis",
+      "title": "Patient Consent Forms",
+      "priority": "SCHEDULE",
+      "what": "Draft and finalize patient consent forms for IV therapy and peptide treatment.",
+      "how": [
+        "Use template from SSRP conference contacts or request from malpractice carrier.",
+        "Have attorney review consent form language.",
+        "Load finalized forms into EMR intake workflow."
+      ],
+      "why": "Required before first patient is seen. No consent form = no treatment. Attorney review protects against liability claims.",
+      "owner": "Mahreen + Attorney",
+      "quadrant": "SCHEDULE"
+    },
+    {
+      "id": 12,
+      "company": "Maison Vitalis",
+      "title": "IV Suite / Infusion Vendor Lock",
+      "priority": "SCHEDULE",
+      "what": "Select and contract with a compounding pharmacy for IV NAD+, infusion bags, and peptide supply.",
+      "how": [
+        "Contact Empower Pharmacy, Belmar Pharmacy, and 5280 Pharmacy for 503B quotes.",
+        "Get formulary lists from each vendor.",
+        "Compare turnaround time + pricing across the three.",
+        "Execute physician onboarding agreement with selected vendor."
+      ],
+      "why": "No pharmacy contract = no inventory = no revenue on day 1. 503B compounding pharmacy is the only compliant source for IV compounds.",
+      "owner": "Mahreen + Ibrahim",
+      "quadrant": "SCHEDULE"
+    },
+    {
+      "id": 13,
+      "company": "Maison Vitalis",
+      "title": "Maryland Business License",
+      "priority": "SCHEDULE",
+      "what": "File Maryland business license and medical practice registration for Maison Vitalis.",
+      "how": [
+        "File with SDAT at sdat.dat.maryland.gov.",
+        "Register medical practice with Maryland Board of Physicians.",
+        "Get EIN if not already assigned (IRS.gov online form, same-day)."
+      ],
+      "why": "Required before billing any patient. Confirmed: NO OHCQ facility license needed (physician office class). Mahreen can handle filing.",
+      "owner": "Mahreen",
+      "quadrant": "SCHEDULE"
+    },
+    {
+      "id": 14,
+      "company": "Maison Vitalis",
+      "title": "Stripe Descriptor Fix",
+      "priority": "SCHEDULE",
+      "what": "Update Stripe payment statement descriptor — currently flagged as 'PHYSICIAN', Stripe requires a change.",
+      "how": [
+        "Login to Stripe Dashboard.",
+        "Go to Settings → Business Settings → Statement Descriptor.",
+        "Change to 'MAISON VITALIS' or 'MV WELLNESS'.",
+        "Save and confirm the change."
+      ],
+      "why": "Stripe has flagged this 3 times. Unresolved = payment processing risk and potential account hold. Five-minute fix.",
+      "owner": "Ibrahim or Mahreen",
+      "quadrant": "SCHEDULE"
+    },
+    {
+      "id": 15,
+      "company": "Admin",
+      "title": "DigiCert OV Validation",
+      "priority": "SCHEDULE",
+      "what": "Follow up with DigiCert (Ridhaa at validation@digicert.com) on Apex Healthcare LLC OV validation for X9 PKI cert.",
+      "how": [
+        "Reply to Ridhaa with SDAT link confirming Apex Healthcare LLC registration.",
+        "Follow up with Justin Raisun on X9 PKI enablement — promised EOB June 17.",
+        "Monitor via DigiCert PKI monitor cron (already active)."
+      ],
+      "why": "SSL/PKI cert required for mTLS PCC API production integration. Blocking the PCC API production path.",
+      "owner": "Ibrahim",
+      "quadrant": "SCHEDULE"
+    }
+  ]
+}
